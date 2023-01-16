@@ -2,24 +2,24 @@
 
 #include "ros/ros.h"
 
-#include "via/DisableMotor.h"
-#include "via/EnableMotor.h"
-#include "via/SetPosition.h"
-#include "via/SetSpeed.h"
-#include "via/SetTorque.h"
+#include "kydas_driver/DisableMotor.h"
+#include "kydas_driver/EnableMotor.h"
+#include "kydas_driver/SetPosition.h"
+#include "kydas_driver/SetSpeed.h"
+#include "kydas_driver/SetTorque.h"
 
-#include "via/RequestQueryData.h"
+#include "kydas_driver/RequestQueryData.h"
 
-#include "via/MotorControllerStatus.h"
-#include "via/MotorCurrent.h"
-#include "via/MotorEletricAngle.h"
-#include "via/MotorFaultCode.h"
-#include "via/MotorPosition.h"
-#include "via/MotorProgramVersion.h"
-#include "via/MotorRotorPosition.h"
-#include "via/MotorSpeed.h"
-#include "via/MotorTemp.h"
-#include "via/MotorVoltage.h"
+#include "kydas_driver/MotorControllerStatus.h"
+#include "kydas_driver/MotorCurrent.h"
+#include "kydas_driver/MotorEletricAngle.h"
+#include "kydas_driver/MotorFaultCode.h"
+#include "kydas_driver/MotorPosition.h"
+#include "kydas_driver/MotorProgramVersion.h"
+#include "kydas_driver/MotorRotorPosition.h"
+#include "kydas_driver/MotorSpeed.h"
+#include "kydas_driver/MotorTemp.h"
+#include "kydas_driver/MotorVoltage.h"
 
 #include <sstream>
 
@@ -116,8 +116,8 @@ void displayFaultCode(short faultCode){
   ROS_INFO("fault code = [%s]", cstr);
 }
 
-bool enableMotor(via::EnableMotor::Request  &req,
-                 via::EnableMotor::Response &res){ 
+bool enableMotor(kydas_driver::EnableMotor::Request  &req,
+                 kydas_driver::EnableMotor::Response &res){ 
   unsigned char enableCommand[]={CONTROL_HEADER,1,0,0,0,0,0,0};
   const int commandSize = 8;
   int result = RS232_SendBuf(cport_nr, enableCommand,commandSize);
@@ -127,8 +127,8 @@ bool enableMotor(via::EnableMotor::Request  &req,
   return true;
 }
 
-bool disableMotor(via::DisableMotor::Request  &req,
-                  via::DisableMotor::Response &res){ 
+bool disableMotor(kydas_driver::DisableMotor::Request  &req,
+                  kydas_driver::DisableMotor::Response &res){ 
    unsigned char enableCommand[]={CONTROL_HEADER,0,0,0,0,0,0,0};
    const int commandSize = 8;
    res.result = RS232_SendBuf(cport_nr, enableCommand,commandSize);
@@ -155,8 +155,8 @@ int setMotorCommand(int value, unsigned char controlMode){
   return result;
 }
 
-bool setSpeed(via::SetSpeed::Request  &req,
-              via::SetSpeed::Response &res){
+bool setSpeed(kydas_driver::SetSpeed::Request  &req,
+              kydas_driver::SetSpeed::Response &res){
   int speed = req.speed;
   if(speed > 10000 || speed < - 10000){
     ROS_INFO("the speed must be bigger then -10000 and less then 10000 [%d]",speed);
@@ -167,8 +167,8 @@ bool setSpeed(via::SetSpeed::Request  &req,
   return true;
 }
 
-bool setTorque(via::SetTorque::Request  &req,
-               via::SetTorque::Response &res){ 
+bool setTorque(kydas_driver::SetTorque::Request  &req,
+               kydas_driver::SetTorque::Response &res){ 
   int torque = req.torque;
   if(torque > 10000 || torque < - 10000){
     ROS_INFO("the torque must be bigger then -10000 and less then 10000 [%d]",torque);
@@ -179,8 +179,8 @@ bool setTorque(via::SetTorque::Request  &req,
   return true;
 }
 
-bool setPosition(via::SetPosition::Request  &req,
-                 via::SetPosition::Response &res){ 
+bool setPosition(kydas_driver::SetPosition::Request  &req,
+                 kydas_driver::SetPosition::Response &res){ 
   int position = req.position;
   if(position > 4294967295 || position < -4294967295){
     ROS_INFO("the position must be bigger then -4294967295 and less then 4294967295 [%d]",position);
@@ -191,8 +191,8 @@ bool setPosition(via::SetPosition::Request  &req,
   return true;
 }
 
-bool requestQueryData(via::RequestQueryData::Request  &req,
-                 via::RequestQueryData::Response &res){ 
+bool requestQueryData(kydas_driver::RequestQueryData::Request  &req,
+                 kydas_driver::RequestQueryData::Response &res){ 
   unsigned char command = req.command;
   if(command >= (int)Query_Data::MAX_AMOUNT || command < 0){
     ROS_INFO("the comamand must be bigger or equal to 0 and less then %d [%d]",(int)Query_Data::MAX_AMOUNT, command);
@@ -219,7 +219,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     unsigned char feedbackWay = bytes[currentPosition + 2] % 16;//Gets the second 4 bits
     unsigned char workingMode = bytes[currentPosition + 3] >> 4;//Get the last 4 bits    
     
-    via::MotorControllerStatus msg;
+    kydas_driver::MotorControllerStatus msg;
     msg.header.stamp = ros::Time::now();
     msg.controlMode = controlMode;
     msg.feedbackWay = feedbackWay;
@@ -235,7 +235,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     //2 bytes value
     int speed = +bytes[currentPosition + 2] << 8
                 + +bytes[currentPosition + 3];
-    via::MotorSpeed msg;
+    kydas_driver::MotorSpeed msg;
     msg.header.stamp = ros::Time::now();
     msg.speed = speed;
     speed_pub.publish(msg);
@@ -245,7 +245,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     //2 bytes value
     int current = +bytes[currentPosition + 2] << 8
                 + +bytes[currentPosition + 3];
-    via::MotorCurrent msg;
+    kydas_driver::MotorCurrent msg;
     msg.header.stamp = ros::Time::now();
     msg.current = current;
     current_pub.publish(msg);
@@ -255,7 +255,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     //2 bytes value
     int rotorPosition = +bytes[currentPosition + 2] << 8
                 + +bytes[currentPosition + 3];
-    via::MotorRotorPosition msg;
+    kydas_driver::MotorRotorPosition msg;
     msg.header.stamp = ros::Time::now();
     msg.rotorPosition = rotorPosition;
     rotorPosition_pub.publish(msg);
@@ -264,7 +264,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
   else if(dataType == Query_Data::Voltage){
     //1 byte value
     int voltage = +bytes[currentPosition + 2];
-    via::MotorVoltage msg;
+    kydas_driver::MotorVoltage msg;
     msg.header.stamp = ros::Time::now();
     msg.voltage = voltage;
     voltage_pub.publish(msg);
@@ -274,7 +274,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     //2 bytes value
     int temp = +bytes[currentPosition + 2] << 8
                 + +bytes[currentPosition + 3];
-    via::MotorTemp msg;
+    kydas_driver::MotorTemp msg;
     msg.header.stamp = ros::Time::now();
     msg.temp = temp;
     temp_pub.publish(msg);
@@ -284,7 +284,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     //2 "bytes" value
     short faultCode = +bytes[currentPosition + 2] << 8
                 + +bytes[currentPosition + 3];
-    via::MotorFaultCode msg;
+    kydas_driver::MotorFaultCode msg;
     msg.header.stamp = ros::Time::now();
     msg.faultCode = faultCode;
     faultCode_pub.publish(msg);
@@ -319,37 +319,37 @@ int readHeartbeatData(unsigned char* bytes, int currentPosition){
                 + +bytes[currentPosition + 12];
 
   //Publishing all this data
-  via::MotorEletricAngle eletricAngleMsg;
+  kydas_driver::MotorEletricAngle eletricAngleMsg;
   eletricAngleMsg.header.stamp = ros::Time::now();
   eletricAngleMsg.eletricAngle = eletricalAngle;
   eletricAngle_pub.publish(eletricAngleMsg);
   ROS_INFO("Eletrical Angle [%d]",eletricalAngle);
 
-  via::MotorFaultCode faultCodeMsg;
+  kydas_driver::MotorFaultCode faultCodeMsg;
   faultCodeMsg.header.stamp = ros::Time::now();
   faultCodeMsg.faultCode = faultCode;
   faultCode_pub.publish(faultCodeMsg);
   displayFaultCode(faultCode);
 
-  via::MotorTemp tempMsg;
+  kydas_driver::MotorTemp tempMsg;
   tempMsg.header.stamp = ros::Time::now();
   tempMsg.temp = temp;
   temp_pub.publish(tempMsg);
   ROS_INFO("Temperature [%d] C",temp);
 
-  via::MotorVoltage voltMsg;
+  kydas_driver::MotorVoltage voltMsg;
   voltMsg.header.stamp = ros::Time::now();
   voltMsg.voltage = voltage;
   voltage_pub.publish(voltMsg);
   ROS_INFO("Voltage [%d] V",voltage);
 
-  via::MotorSpeed speedMsg;
+  kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
   speedMsg.speed = speed;
   speed_pub.publish(speedMsg);
   ROS_INFO("Speed [%d] RPM",speed);
   
-  via::MotorPosition positionMsg;
+  kydas_driver::MotorPosition positionMsg;
   positionMsg.header.stamp = ros::Time::now();
   positionMsg.position = position;
   position_pub.publish(positionMsg);
@@ -398,16 +398,16 @@ int main(int argc, char **argv)
   //2 - Chamar imediatamente os comandos <- Isso sera o usado!
 
   //Setting Publishers
-  controllerStatus_pub = node.advertise<via::MotorControllerStatus>("controllerStatus", 1000);
-  current_pub = node.advertise<via::MotorCurrent>("current", 1000);
-  eletricAngle_pub = node.advertise<via::MotorEletricAngle>("eletricAngle", 1000);
-  faultCode_pub = node.advertise<via::MotorFaultCode>("faultCode", 1000);
-  position_pub = node.advertise<via::MotorPosition>("position", 1000);
-  programVersion_pub = node.advertise<via::MotorProgramVersion>("programVersion", 1000);
-  rotorPosition_pub = node.advertise<via::MotorRotorPosition>("rotorPosition", 1000);
-  speed_pub = node.advertise<via::MotorSpeed>("speed", 1000);
-  temp_pub = node.advertise<via::MotorTemp>("temp", 1000);
-  voltage_pub = node.advertise<via::MotorVoltage>("voltage", 1000);
+  controllerStatus_pub = node.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
+  current_pub = node.advertise<kydas_driver::MotorCurrent>("current", 1000);
+  eletricAngle_pub = node.advertise<kydas_driver::MotorEletricAngle>("eletricAngle", 1000);
+  faultCode_pub = node.advertise<kydas_driver::MotorFaultCode>("faultCode", 1000);
+  position_pub = node.advertise<kydas_driver::MotorPosition>("position", 1000);
+  programVersion_pub = node.advertise<kydas_driver::MotorProgramVersion>("programVersion", 1000);
+  rotorPosition_pub = node.advertise<kydas_driver::MotorRotorPosition>("rotorPosition", 1000);
+  speed_pub = node.advertise<kydas_driver::MotorSpeed>("speed", 1000);
+  temp_pub = node.advertise<kydas_driver::MotorTemp>("temp", 1000);
+  voltage_pub = node.advertise<kydas_driver::MotorVoltage>("voltage", 1000);
   //Setting Services
   ros::ServiceServer enableMotorService = node.advertiseService("enable_motor", enableMotor);
   ros::ServiceServer disableMotorService = node.advertiseService("disable_motor", disableMotor);
