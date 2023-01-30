@@ -30,6 +30,8 @@ const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
 const unsigned char HEARTBEAT_HEADER = 0xEE;
 
+const int BUFFER_SIZE = 4096;
+
 enum class Control_Data{
   SpeedMode = 1,
   TorqueMode,
@@ -104,7 +106,7 @@ void displayMessage(const unsigned char* bytes, int n){
       
   const std::string tmp = ss.str();
   const char* cstr = tmp.c_str();
-  ROS_INFO("message = [%s]", cstr);
+  ROS_DEBUG("message = [%s]", cstr);
 }
 
 void displayFaultCode(short faultCode){
@@ -113,7 +115,7 @@ void displayFaultCode(short faultCode){
   ss << "0x" << std::hex << faultCode;      
   const std::string tmp = ss.str();
   const char* cstr = tmp.c_str();
-  ROS_INFO("fault code = [%s]", cstr);
+  ROS_DEBUG("fault code = [%s]", cstr);
 }
 
 bool enableMotor(kydas_driver::EnableMotor::Request  &req,
@@ -122,7 +124,7 @@ bool enableMotor(kydas_driver::EnableMotor::Request  &req,
   const int commandSize = 8;
   int result = RS232_SendBuf(cport_nr, enableCommand,commandSize);
   res.result = result;
-  ROS_INFO("enabling motor");
+  ROS_DEBUG("enabling motor");
   displayMessage(enableCommand, commandSize);
   return true;
 }
@@ -132,7 +134,7 @@ bool disableMotor(kydas_driver::DisableMotor::Request  &req,
    unsigned char enableCommand[]={CONTROL_HEADER,0,0,0,0,0,0,0};
    const int commandSize = 8;
    res.result = RS232_SendBuf(cport_nr, enableCommand,commandSize);
-   ROS_INFO("disabling motor");
+   ROS_DEBUG("disabling motor");
    displayMessage(enableCommand, commandSize);
    return true;
 }
@@ -150,7 +152,7 @@ int setMotorCommand(int value, unsigned char controlMode){
   command[6] = valueInBytes[1]; 
   command[7] = valueInBytes[0]; 
   int result = RS232_SendBuf(cport_nr, command,commandSize);
-  ROS_INFO("seting motor value [%d] on mode [%d]",value, (int)controlMode);
+  ROS_DEBUG("seting motor value [%d] on mode [%d]",value, (int)controlMode);
   displayMessage(command, commandSize);
   return result;
 }
@@ -203,7 +205,7 @@ bool requestQueryData(kydas_driver::RequestQueryData::Request  &req,
   const int commandSize = 8;
   queryCommand[1] = command;
   res.result = RS232_SendBuf(cport_nr, queryCommand,commandSize);
-  ROS_INFO("requesting data [%d]", command);
+  ROS_DEBUG("requesting data [%d]", command);
   displayMessage(queryCommand, commandSize);
   return true;
 }
@@ -225,7 +227,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     msg.feedbackWay = feedbackWay;
     msg.workingMode = workingMode;
     controllerStatus_pub.publish(msg);
-    ROS_INFO("Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
+    ROS_DEBUG("Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
               controlMode, feedbackWay, workingMode);
   }
   else if(dataType == Query_Data::EletricalAngle){
@@ -239,7 +241,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.speed = speed;
     speed_pub.publish(msg);
-    ROS_INFO("Motor Speed [%d] RPM", speed);
+    ROS_DEBUG("Motor Speed [%d] RPM", speed);
   }
   else if(dataType == Query_Data::Current){
     //2 bytes value
@@ -249,7 +251,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.current = current;
     current_pub.publish(msg);
-    ROS_INFO("Motor Current [%d] A", current);
+    ROS_DEBUG("Motor Current [%d] A", current);
   }
   else if(dataType == Query_Data::RotorPosition){
     //2 bytes value
@@ -259,7 +261,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.rotorPosition = rotorPosition;
     rotorPosition_pub.publish(msg);
-    ROS_INFO("Rotor Position [%d]", rotorPosition);
+    ROS_DEBUG("Rotor Position [%d]", rotorPosition);
   }
   else if(dataType == Query_Data::Voltage){
     //1 byte value
@@ -268,7 +270,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.voltage = voltage;
     voltage_pub.publish(msg);
-    ROS_INFO("Voltage [%d] V", voltage);
+    ROS_DEBUG("Voltage [%d] V", voltage);
   }
   else if(dataType == Query_Data::Temperature){
     //2 bytes value
@@ -278,7 +280,7 @@ int readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.temp = temp;
     temp_pub.publish(msg);
-    ROS_INFO("Temperature [%d] C", temp);
+    ROS_DEBUG("Temperature [%d] C", temp);
   }
   else if(dataType == Query_Data::FaultCode){
     //2 "bytes" value
@@ -323,7 +325,7 @@ int readHeartbeatData(unsigned char* bytes, int currentPosition){
   eletricAngleMsg.header.stamp = ros::Time::now();
   eletricAngleMsg.eletricAngle = eletricalAngle;
   eletricAngle_pub.publish(eletricAngleMsg);
-  ROS_INFO("Eletrical Angle [%d]",eletricalAngle);
+  ROS_DEBUG("Eletrical Angle [%d]",eletricalAngle);
 
   kydas_driver::MotorFaultCode faultCodeMsg;
   faultCodeMsg.header.stamp = ros::Time::now();
@@ -335,25 +337,25 @@ int readHeartbeatData(unsigned char* bytes, int currentPosition){
   tempMsg.header.stamp = ros::Time::now();
   tempMsg.temp = temp;
   temp_pub.publish(tempMsg);
-  ROS_INFO("Temperature [%d] C",temp);
+  ROS_DEBUG("Temperature [%d] C",temp);
 
   kydas_driver::MotorVoltage voltMsg;
   voltMsg.header.stamp = ros::Time::now();
   voltMsg.voltage = voltage;
   voltage_pub.publish(voltMsg);
-  ROS_INFO("Voltage [%d] V",voltage);
+  ROS_DEBUG("Voltage [%d] V",voltage);
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
   speedMsg.speed = speed;
   speed_pub.publish(speedMsg);
-  ROS_INFO("Speed [%d] RPM",speed);
+  ROS_DEBUG("Speed [%d] RPM",speed);
   
   kydas_driver::MotorPosition positionMsg;
   positionMsg.header.stamp = ros::Time::now();
   positionMsg.position = position;
   position_pub.publish(positionMsg);
-  ROS_INFO("Position [%d] 10000/circle",position);
+  ROS_DEBUG("Position [%d] 10000/circle",position);
 
   return 13;
 }
@@ -428,7 +430,7 @@ int main(int argc, char **argv)
 
   int bdrate=115200;       /* 115200 baud */
 
-  unsigned char buf[4096];
+  unsigned char buf[BUFFER_SIZE];
 
   char mode[]={'8','N','1',0};
 
@@ -437,18 +439,55 @@ int main(int argc, char **argv)
     ROS_INFO("Can not open comport");
     //return 0;
   }
-
+  
+  int n = 0;
+  int i = 0;
+  unsigned char current_header_being_read = 0;
   while (ros::ok())
   {
     //Lendo do serial ---------------------
-    int n = RS232_PollComport(cport_nr, buf, 4095);
-    int i = 0;
+    
+    if(current_header_being_read == 0){ //Nao temos mensagem pendente. ler normalmente
+      n = RS232_PollComport(cport_nr, buf, BUFFER_SIZE - 1);
+      i = 0;
+    }
+    else{ //Temos que ler a possivel parte faltante da mensagem
+      //1 - remover o que ja lido (os i-nesimos primeiros bytes) e movimentar o que esta para frente para o inicio
+      //2 - ler a partir de do fim dos que nao foram lidos
+      //3 - voltar i = 0, e n = tamanho total (nao lidos + recem lidos)
+      //EXEMPLO: X - lido, + - nao lidos, % - recem lido, - - vazio
+      //buf = XXXXX++ (i = 5)
+      //1 - buf = -----++ -> buf = ++
+      //2 - buf = ++%%%
+
+      //1-
+      int amount_of_not_read = n - i;
+      memcpy(buf, &buf[i], amount_of_not_read);
+      int amount_read = RS232_PollComport(cport_nr,&buf[i + 1], BUFFER_SIZE - 1 - amount_of_not_read);
+      i = 0;
+      n = amount_of_not_read + amount_read;
+    }
     while(i < n){
       if(buf[i] == HEARTBEAT_HEADER){
+        if(n < 13){
+          current_header_being_read = HEARTBEAT_HEADER;
+          ROS_DEBUG("trying to read heartbeat next loop");
+          break;
+        }
         i += readHeartbeatData(buf, i);
+        current_header_being_read = 0;
       }
       else if(buf[i] == QUERY_HEADER){
+        if(n < 6){
+          current_header_being_read = QUERY_HEADER;
+          ROS_DEBUG("trying to read query next loop");
+          break;
+        }
         i += readQueryData(buf, i);
+        current_header_being_read = 0;
+      }
+      else{
+        i++;
       }
     }
     ros::spinOnce();
