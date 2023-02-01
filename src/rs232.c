@@ -29,7 +29,7 @@
 /* For more info and how to use this library, visit: https://www.teuniz.net/RS-232/ */
 
 
-#include "rs232.h"
+#include "kydas_driver/rs232.h"
 
 
 #if defined(__linux__) || defined(__FreeBSD__)   /* Linux & FreeBSD */
