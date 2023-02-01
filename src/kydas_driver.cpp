@@ -13,8 +13,8 @@ int main(int argc, char **argv)
     cport_nr = atoll(argv[1]);
   }
 
-  char mode[] ={'8','N','1',0};
-  KydasDriverNode node{cport_nr, 115200, mode};
+  
+  KydasDriverNode node{};
   ros::Rate loop_rate(10);
 
   if(node.openComport())

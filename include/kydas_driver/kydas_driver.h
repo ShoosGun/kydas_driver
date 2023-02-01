@@ -88,7 +88,7 @@ class KydasDriverNode
 {
     public:
 
-        KydasDriverNode(int cport_nr, int bdrate, char * mode);
+        KydasDriverNode();
         ~KydasDriverNode(){};
 
         void update();

@@ -21,10 +21,16 @@ void displayFaultCode(short faultCode){
   ROS_DEBUG("fault code = [%s]", cstr);
 }
 
-KydasDriverNode::KydasDriverNode(int cport_nr, int bdrate, char * mode): 
- m_cport_nr{cport_nr}, m_bdrate{bdrate}, m_mode{mode},
+KydasDriverNode::KydasDriverNode(): 
+ m_nh{"~"},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE}
 {
+  m_nh.param<int>("port", m_cport_nr, 0);
+  m_nh.param<int>("bdrate", m_bdrate, 115200);
+
+  char mode[] ={'8','N','1',0};
+  m_mode = mode;
+
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
   m_current_pub = m_nh.advertise<kydas_driver::MotorCurrent>("current", 1000);
