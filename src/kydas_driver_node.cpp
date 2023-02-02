@@ -1,4 +1,5 @@
 #include "kydas_driver/kydas_driver.h"
+#include <bitset>
 
 void displayMessage(const unsigned char* bytes, int m_bufSize){
   std::stringstream ss("");
@@ -13,10 +14,7 @@ void displayMessage(const unsigned char* bytes, int m_bufSize){
 }
 
 void displayFaultCode(short faultCode){
-  std::stringstream ss("");
-  
-  ss << "0x" << std::hex << faultCode;      
-  const std::string tmp = ss.str();
+  const std::string tmp = std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
   const char* cstr = tmp.c_str();
   ROS_DEBUG("fault code = [%s]", cstr);
 }
