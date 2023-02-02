@@ -24,7 +24,8 @@ void displayFaultCode(short faultCode){
 KydasDriverNode::KydasDriverNode(): 
  m_nh{"~"},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
- m_isConnected{false}, m_mode{"8N1"}
+ m_mode{"8N1"},
+ m_isConnected{false}, m_isEnabled{false}
 {
   m_nh.param<int>("port", m_cport_nr, 0);
   m_nh.param<int>("bdrate", m_bdrate, 115200);

@@ -4,21 +4,34 @@ bool KydasDriverNode::enableMotor(kydas_driver::EnableMotor::Request  &req,
                  kydas_driver::EnableMotor::Response &res){ 
   unsigned char enableCommand[]={CONTROL_HEADER,1,0,0,0,0,0,0};
   const int commandSize = 8;
-  int result = RS232_SendBuf(m_cport_nr, enableCommand,commandSize);
+  int result = 0;
+  if(!m_isEnabled){
+    result = RS232_SendBuf(m_cport_nr, enableCommand,commandSize);
+    ROS_DEBUG("enabling motor");
+    displayMessage(enableCommand, commandSize);
+    m_isEnabled = true;
+  }
+
   res.result = result;
-  ROS_DEBUG("enabling motor");
-  displayMessage(enableCommand, commandSize);
+  res.status = m_isEnabled;
   return true;
 }
 
 bool KydasDriverNode::disableMotor(kydas_driver::DisableMotor::Request  &req,
                   kydas_driver::DisableMotor::Response &res){ 
-   unsigned char enableCommand[]={CONTROL_HEADER,0,0,0,0,0,0,0};
-   const int commandSize = 8;
-   res.result = RS232_SendBuf(m_cport_nr, enableCommand,commandSize);
-   ROS_DEBUG("disabling motor");
-   displayMessage(enableCommand, commandSize);
-   return true;
+  unsigned char enableCommand[]={CONTROL_HEADER,0,0,0,0,0,0,0};
+  const int commandSize = 8;
+  int result = 0;
+  if(m_isEnabled){
+    result = RS232_SendBuf(m_cport_nr, enableCommand,commandSize);
+    ROS_DEBUG("disabling motor");
+    displayMessage(enableCommand, commandSize);
+    m_isEnabled = false;
+  }
+
+  res.result = result;
+  res.status = m_isEnabled;
+  return true;
 }
 
 int KydasDriverNode::setMotorCommand(int value, unsigned char controlMode){
@@ -34,7 +47,7 @@ int KydasDriverNode::setMotorCommand(int value, unsigned char controlMode){
   command[6] = valueInBytes[1]; 
   command[7] = valueInBytes[0]; 
   int result = RS232_SendBuf(m_cport_nr, command,commandSize);
-  ROS_INFO("seting motor value [%d] on mode [%d]",value, (int)controlMode);
+  ROS_DEBUG("seting motor value [%d] on mode [%d]",value, (int)controlMode);
   displayMessage(command, commandSize);
   return result;
 }
@@ -47,6 +60,7 @@ bool KydasDriverNode::setSpeed(kydas_driver::SetSpeed::Request  &req,
     res.result = -1;
     return true;
   }
+  m_setSpeed = speed;
   res.result = setMotorCommand(speed, (unsigned char)Control_Data::SpeedMode);
   return true;
 }
@@ -59,6 +73,7 @@ bool KydasDriverNode::setTorque(kydas_driver::SetTorque::Request  &req,
     res.result = -1;
     return true;
   }
+  m_setTorque = torque;
   res.result = setMotorCommand(torque, (unsigned char)Control_Data::TorqueMode);
   return true;
 }
@@ -71,6 +86,7 @@ bool KydasDriverNode::setPosition(kydas_driver::SetPosition::Request  &req,
     res.result = -1;
     return true;
   }
+  m_setPosition = position;
   res.result = setMotorCommand(position, (unsigned char)Control_Data::PositionMode);
   return true;
 }

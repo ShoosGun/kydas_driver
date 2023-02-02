@@ -106,10 +106,27 @@ class KydasDriverNode{
     unsigned char m_currentHeaderBeingRead;
 
     bool m_isConnected;
+    bool m_isEnabled;
+    int m_setSpeed;
+    int m_currentSpeed;
+    int m_setTorque;
+    int m_currentTorque;
+    int m_setPosition;
+    int m_currentPosition;
+
+    int m_current;
+    int m_rotorPosition;
+    int m_voltage;
+    int m_temperature;
+    short m_faultCode;
+    
+    int m_programVersion;
+
+    int m_eletricalAngle;
 
     unsigned char m_controlMode;
     unsigned char m_feedbackWay;
-    unsigned char workingMode;
+    unsigned char m_workingMode;
 
     //TODO colocar todas as variaveis publicadas aki
 
