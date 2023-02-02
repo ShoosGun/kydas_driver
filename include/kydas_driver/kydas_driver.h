@@ -25,6 +25,7 @@
 #include "kydas_driver/MotorVoltage.h"
 
 #include <sstream>
+#include <string> 
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -84,8 +85,7 @@ enum class ControlStatus_WorkingMode{
 void displayMessage(const unsigned char* bytes, int n);
 void displayFaultCode(short faultCode);
 
-class KydasDriverNode
-{
+class KydasDriverNode{
     public:
 
         KydasDriverNode();
@@ -97,13 +97,22 @@ class KydasDriverNode
     private:
     int m_cport_nr;
     int m_bdrate;
-    char * m_mode;
+    std::string m_mode;
 
     unsigned char * m_buf;
     int m_bufferMaxSize;
     int m_positionInBuf;
     int m_bufSize;
     unsigned char m_currentHeaderBeingRead;
+
+    bool m_isConnected;
+
+    unsigned char m_controlMode;
+    unsigned char m_feedbackWay;
+    unsigned char workingMode;
+
+    //TODO colocar todas as variaveis publicadas aki
+
 
 
     ros::NodeHandle m_nh;

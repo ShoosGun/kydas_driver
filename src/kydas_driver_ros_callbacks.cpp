@@ -34,7 +34,7 @@ int KydasDriverNode::setMotorCommand(int value, unsigned char controlMode){
   command[6] = valueInBytes[1]; 
   command[7] = valueInBytes[0]; 
   int result = RS232_SendBuf(m_cport_nr, command,commandSize);
-  ROS_DEBUG("seting motor value [%d] on mode [%d]",value, (int)controlMode);
+  ROS_INFO("seting motor value [%d] on mode [%d]",value, (int)controlMode);
   displayMessage(command, commandSize);
   return result;
 }

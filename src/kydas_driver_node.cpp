@@ -23,13 +23,11 @@ void displayFaultCode(short faultCode){
 
 KydasDriverNode::KydasDriverNode(): 
  m_nh{"~"},
- m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE}
+ m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
+ m_isConnected{false}, m_mode{"8N1"}
 {
   m_nh.param<int>("port", m_cport_nr, 0);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
-
-  char mode[] ={'8','N','1',0};
-  m_mode = mode;
 
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
@@ -52,7 +50,7 @@ KydasDriverNode::KydasDriverNode():
 }
 
 int KydasDriverNode::openComport(){
-  return RS232_OpenComport(m_cport_nr, m_bdrate, m_mode, 0);
+  return RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
 }
 
 void KydasDriverNode::update()
@@ -76,8 +74,12 @@ void KydasDriverNode::update()
     m_positionInBuf = 0;
     m_bufSize = amount_of_not_read + amount_read;
   }
+  
   while(m_positionInBuf < m_bufSize){
     if(m_buf[m_positionInBuf] == HEARTBEAT_HEADER){
+
+      m_isConnected = true; //Receber mensagem de Heartbeat significa que o driver está conectado
+      
       if(m_bufSize < 13){
         m_currentHeaderBeingRead = HEARTBEAT_HEADER;
         ROS_DEBUG("trying to read heartbeat next loop");
