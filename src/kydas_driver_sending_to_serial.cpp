@@ -1,6 +1,5 @@
 #include "kydas_driver/kydas_driver.h"
 
-//TODO fazer um ROS Timer para que isso seja enviado a cada 500 ms
 int KydasDriverNode::setMotorCommand(int value, unsigned char controlMode){
     if(!m_isConnected){
         ROS_WARN("can't set motor command: driver not connected");

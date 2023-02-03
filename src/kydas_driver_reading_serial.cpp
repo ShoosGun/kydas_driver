@@ -71,7 +71,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.temperature = (float)m_temperature;
     m_temp_pub.publish(msg);
-    ROS_DEBUG("Temperature [%d] C", m_temperature);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Temperature [%d] C", m_temperature);
   }
   else if(dataType == Query_Data::FaultCode){
     //2 "bytes" value
@@ -118,7 +118,7 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   eletricAngleMsg.header.stamp = ros::Time::now();
   eletricAngleMsg.eletricAngle = eletricalAngle;
   m_eletricAngle_pub.publish(eletricAngleMsg);
-  ROS_DEBUG("Eletrical Angle [%d]",eletricalAngle);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Eletrical Angle [%d]",eletricalAngle);
 
   kydas_driver::MotorFaultCode faultCodeMsg;
   faultCodeMsg.header.stamp = ros::Time::now();
@@ -130,25 +130,25 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   tempMsg.header.stamp = ros::Time::now();
   tempMsg.temperature = (float)temp;
   m_temp_pub.publish(tempMsg);
-  ROS_DEBUG("Temperature [%d] C",temp);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Temperature [%d] C",temp);
 
   kydas_driver::MotorVoltage voltMsg;
   voltMsg.header.stamp = ros::Time::now();
   voltMsg.voltage = voltage;
   m_voltage_pub.publish(voltMsg);
-  ROS_DEBUG("Voltage [%d] V",voltage);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Voltage [%d] V",voltage);
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
   speedMsg.speed = speed;
   m_speed_pub.publish(speedMsg);
-  ROS_DEBUG("Speed [%d] RPM",speed);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Speed [%d] RPM",speed);
   
   kydas_driver::MotorPosition positionMsg;
   positionMsg.header.stamp = ros::Time::now();
   positionMsg.position = position;
   m_position_pub.publish(positionMsg);
-  ROS_DEBUG("Position [%d] 10000/circle",position);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Position [%d] 10000/circle",position);
 
   return 13;
 }
