@@ -20,7 +20,7 @@ KydasDriverNode::KydasDriverNode():
   m_programVersion_pub = m_nh.advertise<kydas_driver::MotorProgramVersion>("programVersion", 1000);
   m_rotorPosition_pub = m_nh.advertise<kydas_driver::MotorRotorPosition>("rotorPosition", 1000);
   m_speed_pub = m_nh.advertise<kydas_driver::MotorSpeed>("speed", 1000);
-  m_temp_pub = m_nh.advertise<kydas_driver::MotorTemp>("temp", 1000);
+  m_temp_pub = m_nh.advertise<sensor_msgs::Temperature>("temperature", 1000);
   m_voltage_pub = m_nh.advertise<kydas_driver::MotorVoltage>("voltage", 1000);
   //Setting Services
   m_enableMotorService = m_nh.advertiseService("enable_motor", &KydasDriverNode::enableMotor, this);

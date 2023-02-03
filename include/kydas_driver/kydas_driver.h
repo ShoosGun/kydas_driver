@@ -21,8 +21,9 @@
 #include "kydas_driver/MotorProgramVersion.h"
 #include "kydas_driver/MotorRotorPosition.h"
 #include "kydas_driver/MotorSpeed.h"
-#include "kydas_driver/MotorTemp.h"
 #include "kydas_driver/MotorVoltage.h"
+
+#include "sensor_msgs/Temperature.h"
 
 #include <sstream>
 #include <string> 

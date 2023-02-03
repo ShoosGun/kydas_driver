@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -58,7 +59,6 @@ add_message_files(
   MotorProgramVersion.msg
   MotorRotorPosition.msg
   MotorSpeed.msg
-  MotorTemp.msg
   MotorVoltage.msg
 )
 
@@ -83,7 +83,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs
+  std_msgs sensor_msgs
 )
 
 ################################################
@@ -118,7 +118,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES kydas_driver
-   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime sensor_msgs
 #  DEPENDS system_lib
 )
 

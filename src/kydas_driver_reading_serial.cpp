@@ -67,9 +67,9 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     //2 bytes value
     m_temperature = +bytes[currentPosition + 2] << 8
                 + +bytes[currentPosition + 3];
-    kydas_driver::MotorTemp msg;
+    sensor_msgs::Temperature msg;
     msg.header.stamp = ros::Time::now();
-    msg.temp = m_temperature;
+    msg.temperature = (float)m_temperature;
     m_temp_pub.publish(msg);
     ROS_DEBUG("Temperature [%d] C", m_temperature);
   }
@@ -126,9 +126,9 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   m_faultCode_pub.publish(faultCodeMsg);
   displayFaultCode(faultCode);
 
-  kydas_driver::MotorTemp tempMsg;
+  sensor_msgs::Temperature tempMsg;
   tempMsg.header.stamp = ros::Time::now();
-  tempMsg.temp = temp;
+  tempMsg.temperature = (float)temp;
   m_temp_pub.publish(tempMsg);
   ROS_DEBUG("Temperature [%d] C",temp);
 
