@@ -9,8 +9,8 @@ int main(int argc, char **argv)
 
   if(node.openComport())
   {
-    ROS_INFO("Can not open comport");
-    return 0;
+    ROS_WARN("can't open comport, the driver might not be connected or the port with the permissions not set");
+    //return 0;
   }
   
   while (ros::ok())
