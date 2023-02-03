@@ -18,7 +18,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.feedbackWay = m_feedbackWay;
     msg.workingMode = m_currentWorkingMode;
     m_controllerStatus_pub.publish(msg);
-    ROS_DEBUG("Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
               m_controlMode, m_feedbackWay, m_currentWorkingMode);
   }
   else if(dataType == Query_Data::EletricalAngle){
@@ -32,7 +32,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.speed = m_currentSpeed;
     m_speed_pub.publish(msg);
-    ROS_DEBUG("Motor Speed [%d] RPM", m_currentSpeed);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Motor Speed [%d] RPM", m_currentSpeed);
   }
   else if(dataType == Query_Data::Current){
     //2 bytes value
@@ -42,7 +42,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.current = m_current;
     m_current_pub.publish(msg);
-    ROS_DEBUG("Motor Current [%d] A", m_current);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Motor Current [%d] A", m_current);
   }
   else if(dataType == Query_Data::RotorPosition){
     //2 bytes value
@@ -52,7 +52,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.rotorPosition = m_rotorPosition;
     m_rotorPosition_pub.publish(msg);
-    ROS_DEBUG("Rotor Position [%d]", m_rotorPosition);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Rotor Position [%d]", m_rotorPosition);
   }
   else if(dataType == Query_Data::Voltage){
     //1 byte value
@@ -61,7 +61,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.voltage = m_voltage;
     m_voltage_pub.publish(msg);
-    ROS_DEBUG("Voltage [%d] V", m_voltage);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Voltage [%d] V", m_voltage);
   }
   else if(dataType == Query_Data::Temperature){
     //2 bytes value
