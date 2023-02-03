@@ -99,24 +99,27 @@ class KydasDriverNode{
     int loop_rate;
 
   private:
+    //Dados para comunicacao serial
     int m_cport_nr;
     int m_bdrate;
     std::string m_mode;
-
+    //Buffers e outros para receber dados do serial
     unsigned char * m_buf;
     int m_bufferMaxSize;
     int m_positionInBuf;
     int m_bufSize;
     unsigned char m_currentHeaderBeingRead;
 
-    bool m_isConnected;
-    bool m_isEnabled;
+    //Dados a serem enviados pela serial------
+    bool m_isConnected; //Indica se o driver foi conectado
+    bool m_isEnabled; //Indica se o motor está ativado
     int m_setSpeed;
     int m_currentSpeed;
     int m_setTorque;
     int m_currentTorque;
     int m_setPosition;
     int m_currentPosition;
+    //----------------------------------------
 
     //Para enviar as informacoes ao driver ---
     int m_oldSetValue;
@@ -124,6 +127,7 @@ class KydasDriverNode{
     unsigned char m_setWorkingMode;
     //----------------------------------------
 
+    //Dados do driver ------------------------
     int m_current;
     int m_rotorPosition;
     int m_voltage;
@@ -137,7 +141,8 @@ class KydasDriverNode{
     unsigned char m_controlMode;
     unsigned char m_feedbackWay;
     unsigned char m_currentWorkingMode;
-
+    //----------------------------------------
+    //ROS-------------------------------------
     ros::NodeHandle m_nh;
     
     //Loop de enviar dados ao motor com delay
