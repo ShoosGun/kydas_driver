@@ -136,6 +136,7 @@ include_directories(
 add_executable(kydas_driver src/kydas_driver.cpp
                             src/kydas_driver_node.cpp
                             src/kydas_driver_reading_serial.cpp
+                            src/kydas_driver_sending_to_serial.cpp
                             src/kydas_driver_ros_callbacks.cpp
                             src/rs232.c)
 target_link_libraries(kydas_driver ${catkin_LIBRARIES})

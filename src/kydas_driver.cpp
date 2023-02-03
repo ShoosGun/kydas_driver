@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   if(node.openComport())
   {
     ROS_INFO("Can not open comport");
-    //return 0;
+    return 0;
   }
   
   while (ros::ok())

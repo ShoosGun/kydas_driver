@@ -114,6 +114,12 @@ class KydasDriverNode{
     int m_setPosition;
     int m_currentPosition;
 
+    //Para enviar as informacoes ao driver ---
+    int m_oldSetValue;
+    unsigned char m_oldSetWorkingMode;
+    unsigned char m_setWorkingMode;
+    //----------------------------------------
+
     int m_current;
     int m_rotorPosition;
     int m_voltage;
@@ -126,11 +132,7 @@ class KydasDriverNode{
 
     unsigned char m_controlMode;
     unsigned char m_feedbackWay;
-    unsigned char m_workingMode;
-
-    //TODO colocar todas as variaveis publicadas aki
-
-
+    unsigned char m_currentWorkingMode;
 
     ros::NodeHandle m_nh;
 
@@ -152,16 +154,26 @@ class KydasDriverNode{
     ros::ServiceServer m_setTorqueService;
     ros::ServiceServer m_requestQueryDataService;
 
+    //Funcoes gerais de ler serial
+    void readSerial();
+    void readMessagesOnBuffer();
+    //Funcoes para enviar comandos
+    void sendMotorCommand();
+    int setMotorCommand(int value, unsigned char controlMode);
+    int enableMotor();
+    int disableMotor();
+    int requestQueryData(unsigned char command);
+    //Funcoes para receber dados
+    int readQueryData(unsigned char* bytes, int currentPosition);
+    int readHeartbeatData(unsigned char* bytes, int currentPosition);
+
+    //Callbacks dos servicos
     bool enableMotor(kydas_driver::EnableMotor::Request  &req, kydas_driver::EnableMotor::Response &res);
     bool disableMotor(kydas_driver::DisableMotor::Request  &req, kydas_driver::DisableMotor::Response &res);
-    int setMotorCommand(int value, unsigned char controlMode);
     bool setSpeed(kydas_driver::SetSpeed::Request  &req, kydas_driver::SetSpeed::Response &res);
     bool setTorque(kydas_driver::SetTorque::Request  &req, kydas_driver::SetTorque::Response &res);
     bool setPosition(kydas_driver::SetPosition::Request  &req, kydas_driver::SetPosition::Response &res);
-    bool requestQueryData(kydas_driver::RequestQueryData::Request  &req, kydas_driver::RequestQueryData::Response &res);
-    int readQueryData(unsigned char* bytes, int currentPosition);
-    int readHeartbeatData(unsigned char* bytes, int currentPosition);
-  
+    bool requestQueryData(kydas_driver::RequestQueryData::Request  &req, kydas_driver::RequestQueryData::Response &res);  
 };
 
 #endif

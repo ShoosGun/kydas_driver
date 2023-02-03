@@ -10,16 +10,16 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     //1.5 bytes value
     m_controlMode = bytes[currentPosition + 2] >> 4;//Gets the first 4 bits
     m_feedbackWay = bytes[currentPosition + 2] % 16;//Gets the second 4 bits
-    m_workingMode = bytes[currentPosition + 3] >> 4;//Get the last 4 bits    
+    m_currentWorkingMode = bytes[currentPosition + 3] >> 4;//Get the last 4 bits    
     
     kydas_driver::MotorControllerStatus msg;
     msg.header.stamp = ros::Time::now();
     msg.controlMode = m_controlMode;
     msg.feedbackWay = m_feedbackWay;
-    msg.workingMode = m_workingMode;
+    msg.workingMode = m_currentWorkingMode;
     m_controllerStatus_pub.publish(msg);
     ROS_DEBUG("Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
-              m_controlMode, m_feedbackWay, m_workingMode);
+              m_controlMode, m_feedbackWay, m_currentWorkingMode);
   }
   else if(dataType == Query_Data::EletricalAngle){
     //Not on the datasheet, we need to ask them

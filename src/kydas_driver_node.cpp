@@ -52,9 +52,7 @@ int KydasDriverNode::openComport(){
   return RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
 }
 
-void KydasDriverNode::update()
-{  
-  //Lendo do serial ---------------------    
+void KydasDriverNode::readSerial(){
   if(m_currentHeaderBeingRead == 0){ //Nao temos mensagem pendente. ler normalmente
     m_bufSize = RS232_PollComport(m_cport_nr, m_buf, m_bufferMaxSize - 1);
     m_positionInBuf = 0;
@@ -73,11 +71,14 @@ void KydasDriverNode::update()
     m_positionInBuf = 0;
     m_bufSize = amount_of_not_read + amount_read;
   }
-  
+}
+
+void KydasDriverNode::readMessagesOnBuffer(){
   while(m_positionInBuf < m_bufSize){
     if(m_buf[m_positionInBuf] == HEARTBEAT_HEADER){
 
-      m_isConnected = true; //Receber mensagem de Heartbeat significa que o driver está conectado
+      if(!m_isConnected)
+        m_isConnected = true;//Receber mensagem de Heartbeat significa que o driver está conectado
       
       if(m_bufSize < 13){
         m_currentHeaderBeingRead = HEARTBEAT_HEADER;
@@ -100,4 +101,31 @@ void KydasDriverNode::update()
       m_positionInBuf++;
     }
   }
+}
+
+void KydasDriverNode::sendMotorCommand(){
+  int value;
+  switch((Control_Data)m_setWorkingMode){
+    case Control_Data::SpeedMode:
+      value = m_setSpeed;
+      break;
+    case Control_Data::TorqueMode:
+      value = m_setTorque;
+      break;
+    case Control_Data::PositionMode:
+      value = m_setPosition;
+      break;
+  }
+  if(m_setWorkingMode != m_oldSetWorkingMode || value != m_oldSetValue){
+    setMotorCommand(value, m_setWorkingMode);
+    m_oldSetWorkingMode = m_setWorkingMode;
+    m_oldSetValue = value;
+  }
+}
+
+void KydasDriverNode::update()
+{  
+  readSerial(); //Lendo do serial
+  readMessagesOnBuffer(); //Interpretando a mensagem
+  sendMotorCommand(); //Enviando mensagem de comando caso exista necessidade
 }
