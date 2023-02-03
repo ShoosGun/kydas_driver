@@ -33,9 +33,9 @@ const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
 const unsigned char HEARTBEAT_HEADER = 0xEE;
 
-const char[] DEBUGGER_NAME_DATA_PREVIEW = "data_preview";
-const char[] DEBUGGER_NAME_DISPLAY_MESSAGES = "display_messages";
-const char[] DEBUGGER_NAME_COMMAND_SENT = "command_sent";
+const char DEBUGGER_NAME_DATA_PREVIEW []= "data_preview";
+const char DEBUGGER_NAME_DISPLAY_MESSAGES [] = "display_messages";
+const char DEBUGGER_NAME_COMMAND_SENT [] = "command_sent";
 
 const int BUFFER_SIZE = 4096;
 
