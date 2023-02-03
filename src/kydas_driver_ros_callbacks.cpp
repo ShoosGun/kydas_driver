@@ -34,7 +34,7 @@ bool KydasDriverNode::setSpeed(kydas_driver::SetSpeed::Request  &req,
     res.result = -1;
     return true;
   }
-  else if(m_isEnabled){
+  else if(!m_isEnabled){
     ROS_WARN("the motor needs to be enabled first!");
     res.result = -1;
     return true;
@@ -53,7 +53,7 @@ bool KydasDriverNode::setTorque(kydas_driver::SetTorque::Request  &req,
     res.result = -1;
     return true;
   }
-  else if(m_isEnabled){
+  else if(!m_isEnabled){
     ROS_WARN("the motor needs to be enabled first!");
     res.result = -1;
     return true;
@@ -69,6 +69,11 @@ bool KydasDriverNode::setPosition(kydas_driver::SetPosition::Request  &req,
   int position = req.position;
   if(position > 4294967295 || position < -4294967295){
     ROS_WARN("the position must be bigger then -4294967295 and less then 4294967295 [%d]",position);
+    res.result = -1;
+    return true;
+  }
+  else if(!m_isEnabled){
+    ROS_WARN("the motor needs to be enabled first!");
     res.result = -1;
     return true;
   }

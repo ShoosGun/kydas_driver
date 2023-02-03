@@ -7,10 +7,13 @@ KydasDriverNode::KydasDriverNode():
  m_isConnected{false}, m_isEnabled{false}
 {
   //Getting Params
-  m_nh.param<int>("port", m_cport_nr, 0);
+  m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
   m_nh.param<int>("loop_rate", loop_rate, 10);
 
+
+  //Creating buffer
+  m_buf = new unsigned char[m_bufferMaxSize];
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
   m_current_pub = m_nh.advertise<kydas_driver::MotorCurrent>("current", 1000);
@@ -31,8 +34,15 @@ KydasDriverNode::KydasDriverNode():
   m_requestQueryDataService = m_nh.advertiseService("request_query_data", &KydasDriverNode::requestQueryData, this);
 }
 
+KydasDriverNode::~KydasDriverNode(){
+  delete[] m_buf;
+}
+
 int KydasDriverNode::openComport(){
-  return RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
+  
+  int a = RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
+  ROS_INFO("%d", a);
+  return a;
 }
 
 void KydasDriverNode::readSerial(){
@@ -56,7 +66,7 @@ void KydasDriverNode::readSerial(){
   }
 }
 
-void KydasDriverNode::readMessagesOnBuffer(){
+void KydasDriverNode::readMessagesOnBuffer(){  
   while(m_positionInBuf < m_bufSize){
     if(m_buf[m_positionInBuf] == HEARTBEAT_HEADER){
 
@@ -99,11 +109,11 @@ void KydasDriverNode::sendMotorCommand(){
       value = m_setPosition;
       break;
   }
-  if(m_setWorkingMode != m_oldSetWorkingMode || value != m_oldSetValue){
+  //if(m_setWorkingMode != m_oldSetWorkingMode || value != m_oldSetValue){
     setMotorCommand(value, m_setWorkingMode);
     m_oldSetWorkingMode = m_setWorkingMode;
     m_oldSetValue = value;
-  }
+  //}
 }
 
 void KydasDriverNode::update()

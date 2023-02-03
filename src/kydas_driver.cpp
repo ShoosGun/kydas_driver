@@ -1,6 +1,7 @@
 #include "kydas_driver/kydas_driver.h"
 #include <bitset>
 
+//TODO ter ROS_DEBUG seletivo
 void displayMessage(const unsigned char* bytes, int m_bufSize){
   std::stringstream ss("");
   
@@ -29,7 +30,7 @@ int main(int argc, char **argv)
   if(node.openComport())
   {
     ROS_WARN("can't open comport, the driver might not be connected or the port with the permissions not set");
-    //return 0;
+    return 0;
   }
   
   while (ros::ok())

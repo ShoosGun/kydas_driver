@@ -90,7 +90,7 @@ class KydasDriverNode{
   public:
 
     KydasDriverNode();
-    ~KydasDriverNode(){};
+    ~KydasDriverNode();
 
     void update();
     int openComport();
