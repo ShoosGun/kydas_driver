@@ -86,15 +86,17 @@ void displayMessage(const unsigned char* bytes, int n);
 void displayFaultCode(short faultCode);
 
 class KydasDriverNode{
-    public:
+  public:
 
-        KydasDriverNode();
-        ~KydasDriverNode(){};
+    KydasDriverNode();
+    ~KydasDriverNode(){};
 
-        void update();
-        int openComport();
+    void update();
+    int openComport();
 
-    private:
+    int loop_rate;
+
+  private:
     int m_cport_nr;
     int m_bdrate;
     std::string m_mode;

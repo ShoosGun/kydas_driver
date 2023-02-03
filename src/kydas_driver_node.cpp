@@ -1,23 +1,4 @@
 #include "kydas_driver/kydas_driver.h"
-#include <bitset>
-
-void displayMessage(const unsigned char* bytes, int m_bufSize){
-  std::stringstream ss("");
-  
-  ss << "0x" << std::hex;
-  for (int i = 0; i < m_bufSize; i++) 
-      ss << ' ' << +bytes[i];
-      
-  const std::string tmp = ss.str();
-  const char* cstr = tmp.c_str();
-  ROS_DEBUG("message = [%s]", cstr);
-}
-
-void displayFaultCode(short faultCode){
-  const std::string tmp = std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
-  const char* cstr = tmp.c_str();
-  ROS_DEBUG("fault code = [%s]", cstr);
-}
 
 KydasDriverNode::KydasDriverNode(): 
  m_nh{"~"},
@@ -25,8 +6,10 @@ KydasDriverNode::KydasDriverNode():
  m_mode{"8N1"},
  m_isConnected{false}, m_isEnabled{false}
 {
+  //Getting Params
   m_nh.param<int>("port", m_cport_nr, 0);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
+  m_nh.param<int>("loop_rate", loop_rate, 10);
 
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
