@@ -10,10 +10,15 @@ KydasDriverNode::KydasDriverNode():
   m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
   m_nh.param<int>("loop_rate", loop_rate, 10);
+  m_nh.param<float>("command_delay", m_sendDelay, 0.5f);
 
 
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
+
+  //Creating timer to send values to driver
+  m_setValueTimer = m_nh.createTimer(ros::Duration(m_sendDelay), &KydasDriverNode::sendMotorCommandLoopCallback, this);
+
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
   m_current_pub = m_nh.advertise<kydas_driver::MotorCurrent>("current", 1000);
@@ -96,6 +101,10 @@ void KydasDriverNode::readMessagesOnBuffer(){
   }
 }
 
+void KydasDriverNode::sendMotorCommandLoopCallback(const ros::TimerEvent&){
+  sendMotorCommand();
+}
+
 void KydasDriverNode::sendMotorCommand(){
   int value;
   switch((Control_Data)m_setWorkingMode){
@@ -110,9 +119,9 @@ void KydasDriverNode::sendMotorCommand(){
       break;
   }
   //if(m_setWorkingMode != m_oldSetWorkingMode || value != m_oldSetValue){
-    setMotorCommand(value, m_setWorkingMode);
-    m_oldSetWorkingMode = m_setWorkingMode;
-    m_oldSetValue = value;
+  setMotorCommand(value, m_setWorkingMode);
+  m_oldSetWorkingMode = m_setWorkingMode;
+  m_oldSetValue = value;
   //}
 }
 
@@ -120,5 +129,5 @@ void KydasDriverNode::update()
 {  
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
-  sendMotorCommand(); //Enviando mensagem de comando caso exista necessidade
+  //sendMotorCommand(); //Enviando mensagem de comando caso exista necessidade
 }

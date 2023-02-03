@@ -5,6 +5,7 @@
 
 #include "ros/ros.h"
 
+
 #include "kydas_driver/DisableMotor.h"
 #include "kydas_driver/EnableMotor.h"
 #include "kydas_driver/SetPosition.h"
@@ -26,7 +27,7 @@
 #include "sensor_msgs/Temperature.h"
 
 #include <sstream>
-#include <string> 
+#include <string>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -138,7 +139,13 @@ class KydasDriverNode{
     unsigned char m_currentWorkingMode;
 
     ros::NodeHandle m_nh;
+    
+    //Loop de enviar dados ao motor com delay
+    ros::Timer m_setValueTimer;
+    float m_sendDelay;
+    void sendMotorCommandLoopCallback(const ros::TimerEvent&);
 
+    //Publicadores
     ros::Publisher m_controllerStatus_pub;
     ros::Publisher m_current_pub;
     ros::Publisher m_eletricAngle_pub;
@@ -150,6 +157,7 @@ class KydasDriverNode{
     ros::Publisher m_temp_pub;
     ros::Publisher m_voltage_pub;
 
+    //Servicos
     ros::ServiceServer m_enableMotorService;
     ros::ServiceServer m_disableMotorService;
     ros::ServiceServer m_setPositionService;
