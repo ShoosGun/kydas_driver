@@ -4,14 +4,15 @@ KydasDriverNode::KydasDriverNode():
  m_nh{"~"},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
- m_isConnected{false}, m_isEnabled{false}
+ m_isConnected{false}, m_isEnabled{false},
+ m_oldSetWorkingMode{0},m_setWorkingMode{0}
+ 
 {
   //Getting Params
   m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
   m_nh.param<int>("loop_rate", loop_rate, 10);
   m_nh.param<float>("command_delay", m_sendDelay, 0.5f);
-
 
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
@@ -70,7 +71,8 @@ void KydasDriverNode::readSerial(){
     m_bufSize = amount_of_not_read + amount_read;
   }
 
-  displayMessage(m_buf, m_bufSize, DEBUGGER_NAME_MESSAGE_RECEIVED);
+  const char* cstr = displayMessage(m_buf, m_bufSize).c_str();
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_MESSAGE_RECEIVED, "message = [%s]", cstr);
 }
 
 void KydasDriverNode::readMessagesOnBuffer(){  
@@ -103,6 +105,7 @@ void KydasDriverNode::readMessagesOnBuffer(){
   }
 }
 
+//TODO adicionar loop para pedir as informacoes de query
 void KydasDriverNode::sendMotorCommandLoopCallback(const ros::TimerEvent&){
   sendMotorCommand();
 }

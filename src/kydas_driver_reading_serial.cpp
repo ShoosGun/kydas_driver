@@ -18,12 +18,11 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.feedbackWay = m_feedbackWay;
     msg.workingMode = m_currentWorkingMode;
     m_controllerStatus_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Controller Status:\n Control Mode [%d]\n Feedback Way [%d]\n Working Mode [%d]",
               m_controlMode, m_feedbackWay, m_currentWorkingMode);
   }
   else if(dataType == Query_Data::EletricalAngle){
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Received Eletrical Angle Data");
-    displayMessage(bytes, 6, DEBUGGER_NAME_DATA_PREVIEW);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Received Eletrical Angle Data");
     //Not on the datasheet, we need to ask them
   }
   else if(dataType == Query_Data::Speed){
@@ -34,7 +33,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.speed = m_currentSpeed;
     m_speed_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Motor Speed [%d] RPM", m_currentSpeed);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%d] RPM", m_currentSpeed);
   }
   else if(dataType == Query_Data::Current){
     //2 bytes value
@@ -44,7 +43,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.current = m_current;
     m_current_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Motor Current [%d] A", m_current);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Current [%d] A", m_current);
   }
   else if(dataType == Query_Data::RotorPosition){
     //2 bytes value
@@ -54,7 +53,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.rotorPosition = m_rotorPosition;
     m_rotorPosition_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Rotor Position [%d]", m_rotorPosition);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Rotor Position [%d]", m_rotorPosition);
   }
   else if(dataType == Query_Data::Voltage){
     //1 byte value
@@ -63,7 +62,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.voltage = m_voltage;
     m_voltage_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Voltage [%d] V", m_voltage);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Voltage [%d] V", m_voltage);
   }
   else if(dataType == Query_Data::Temperature){
     //2 bytes value
@@ -73,7 +72,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.temperature = (float)m_temperature;
     m_temp_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Temperature [%d] C", m_temperature);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Temperature [%d] C", m_temperature);
   }
   else if(dataType == Query_Data::FaultCode){
     //2 "bytes" value
@@ -86,15 +85,22 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     displayFaultCode(m_faultCode);
   }
   else if(dataType == Query_Data::Position){
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Received Position Data");
-    displayMessage(bytes, 6, DEBUGGER_NAME_DATA_PREVIEW);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Received Position Data");
     m_currentPosition = 0;
   }
   else if(dataType == Query_Data::ProgramVersion){  
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Received Program Version Data");
-    displayMessage(bytes, 6, DEBUGGER_NAME_DATA_PREVIEW);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Received Program Version Data");
     m_programVersion = 0;
   }
+
+  std::stringstream ss("");  
+  ss << "0x" << std::hex;
+  for (int i = 0; i < 6; i++) 
+      ss << ' ' << +bytes[i];
+  
+  const std::string temp = ss.str();
+  const char* cstr = temp.c_str();
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "message = [%s]", cstr);
   return 6; //Counting the header, the query data is always 6 bytes
 }
 
@@ -124,7 +130,7 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   eletricAngleMsg.header.stamp = ros::Time::now();
   eletricAngleMsg.eletricAngle = eletricalAngle;
   m_eletricAngle_pub.publish(eletricAngleMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Eletrical Angle [%d]",eletricalAngle);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Eletrical Angle [%d]",eletricalAngle);
 
   kydas_driver::MotorFaultCode faultCodeMsg;
   faultCodeMsg.header.stamp = ros::Time::now();
@@ -136,25 +142,25 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   tempMsg.header.stamp = ros::Time::now();
   tempMsg.temperature = (float)temp;
   m_temp_pub.publish(tempMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Temperature [%d] C",temp);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Temperature [%d] C",temp);
 
   kydas_driver::MotorVoltage voltMsg;
   voltMsg.header.stamp = ros::Time::now();
   voltMsg.voltage = voltage;
   m_voltage_pub.publish(voltMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Voltage [%d] V",voltage);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Voltage [%d] V",voltage);
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
   speedMsg.speed = speed;
   m_speed_pub.publish(speedMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Speed [%d] RPM",speed);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Speed [%d] RPM",speed);
   
   kydas_driver::MotorPosition positionMsg;
   positionMsg.header.stamp = ros::Time::now();
   positionMsg.position = position;
   m_position_pub.publish(positionMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Position [%d] 10000/circle",position);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Position [%d] 10000/circle",position);
 
   return 13;
 }

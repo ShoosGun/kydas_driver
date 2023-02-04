@@ -7,6 +7,7 @@ bool KydasDriverNode::enableMotor(kydas_driver::EnableMotor::Request  &req,
     result = enableMotor();
     if(result != -1)
       m_isEnabled = true;
+      m_setSpeed = 0;
   }
   res.result = result;
   res.status = m_isEnabled;
@@ -20,6 +21,7 @@ bool KydasDriverNode::disableMotor(kydas_driver::DisableMotor::Request  &req,
     result = disableMotor();
     if(result != -1)
       m_isEnabled = false;
+      m_setSpeed = 0;
   }
   res.result = result;
   res.status = m_isEnabled;

@@ -1,22 +1,20 @@
 #include "kydas_driver/kydas_driver.h"
 #include <bitset>
 
-void displayMessage(const unsigned char* bytes, int m_bufSize, const char * debugName){
+std::string displayMessage(const unsigned char* bytes, int m_bufSize){
   std::stringstream ss("");
   
   ss << "0x" << std::hex;
   for (int i = 0; i < m_bufSize; i++) 
       ss << ' ' << +bytes[i];
       
-  const std::string tmp = ss.str();
-  const char* cstr = tmp.c_str();
-  ROS_DEBUG_NAMED(debugName, "message = [%s]", cstr);
+  return ss.str();
 }
 
 void displayFaultCode(short faultCode){
   const std::string tmp = std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
   const char* cstr = tmp.c_str();
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "fault code = [0b%s]", cstr);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "fault code = [0b%s]", cstr);
 }
 
 int main(int argc, char **argv)
