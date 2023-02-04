@@ -22,6 +22,8 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
               m_controlMode, m_feedbackWay, m_currentWorkingMode);
   }
   else if(dataType == Query_Data::EletricalAngle){
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Received Eletrical Angle Data");
+    displayMessage(bytes, 6, DEBUGGER_NAME_DATA_PREVIEW);
     //Not on the datasheet, we need to ask them
   }
   else if(dataType == Query_Data::Speed){
@@ -84,9 +86,13 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     displayFaultCode(m_faultCode);
   }
   else if(dataType == Query_Data::Position){
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Received Position Data");
+    displayMessage(bytes, 6, DEBUGGER_NAME_DATA_PREVIEW);
     m_currentPosition = 0;
   }
   else if(dataType == Query_Data::ProgramVersion){  
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_DATA_PREVIEW, "Received Program Version Data");
+    displayMessage(bytes, 6, DEBUGGER_NAME_DATA_PREVIEW);
     m_programVersion = 0;
   }
   return 6; //Counting the header, the query data is always 6 bytes

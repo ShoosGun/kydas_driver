@@ -69,6 +69,8 @@ void KydasDriverNode::readSerial(){
     m_positionInBuf = 0;
     m_bufSize = amount_of_not_read + amount_read;
   }
+
+  displayMessage(m_buf, m_bufSize, DEBUGGER_NAME_MESSAGE_RECEIVED);
 }
 
 void KydasDriverNode::readMessagesOnBuffer(){  

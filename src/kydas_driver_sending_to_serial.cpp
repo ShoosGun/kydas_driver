@@ -23,7 +23,7 @@ int KydasDriverNode::setMotorCommand(int value, unsigned char controlMode){
     command[7] = valueInBytes[0]; 
     int result = RS232_SendBuf(m_cport_nr, command,commandSize);
     ROS_DEBUG_NAMED(DEBUGGER_NAME_COMMAND_SENT, "seting motor value [%d] on mode [%d]",value, (int)controlMode);
-    displayMessage(command, commandSize);
+    displayMessage(command, commandSize, DEBUGGER_NAME_MESSAGE_SENT);
     return result;
 }
 
@@ -36,7 +36,7 @@ int KydasDriverNode::enableMotor(){
     const int commandSize = 8;
     int result = RS232_SendBuf(m_cport_nr, enableCommand,commandSize);
     ROS_DEBUG_NAMED(DEBUGGER_NAME_COMMAND_SENT, "enabling motor");
-    displayMessage(enableCommand, commandSize);
+    displayMessage(enableCommand, commandSize, DEBUGGER_NAME_MESSAGE_SENT);
     return result;
 }
 
@@ -49,7 +49,7 @@ int KydasDriverNode::disableMotor(){
     const int commandSize = 8;
     int result = RS232_SendBuf(m_cport_nr, enableCommand,commandSize);
     ROS_DEBUG_NAMED(DEBUGGER_NAME_COMMAND_SENT, "disabling motor");
-    displayMessage(enableCommand, commandSize);
+    displayMessage(enableCommand, commandSize, DEBUGGER_NAME_MESSAGE_SENT);
     return result;
 }
 
@@ -63,6 +63,6 @@ int KydasDriverNode::requestQueryData(unsigned char command){
     queryCommand[1] = command;
     int result = RS232_SendBuf(m_cport_nr, queryCommand,commandSize);
     ROS_DEBUG_NAMED(DEBUGGER_NAME_COMMAND_SENT, "requesting data [%d]", command);
-    displayMessage(queryCommand, commandSize);
+    displayMessage(queryCommand, commandSize, DEBUGGER_NAME_MESSAGE_SENT);
     return result;
 }
