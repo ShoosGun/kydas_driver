@@ -91,7 +91,7 @@ enum class ControlStatus_WorkingMode{
 };
 */
 std::string displayMessage(const unsigned char* bytes, int n);
-void displayFaultCode(short faultCode);
+std::string displayFaultCode(short faultCode);
 
 class KydasDriverNode{
   public:
