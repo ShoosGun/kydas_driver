@@ -83,9 +83,9 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.faultCode = m_faultCode;
     m_faultCode_pub.publish(msg);
 
-    std::string s = displayFaultCode(m_faultCode);
-    const char* cstr = s.c_str();
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Fault Code = [0b%s]", cstr);
+    std::string faultCodeStr = displayFaultCode(m_faultCode);
+    const char* faultCodeCStr = faultCodeStr.c_str();
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Fault Code = [0b%s]", faultCodeCStr);
   }
   else if(dataType == Query_Data::Position){
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Received Position Data");
@@ -135,9 +135,9 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   faultCodeMsg.faultCode = faultCode;
   m_faultCode_pub.publish(faultCodeMsg);
   
-  std::string s = displayFaultCode(faultCode);
-  const char* cstr = s.c_str();
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Fault Code = [0b%s]", cstr);
+  std::string faultCodeStr = displayFaultCode(faultCode);
+  const char* faultCodeCStr = faultCodeStr.c_str();
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Fault Code = [0b%s]", faultCodeCStr);
 
   sensor_msgs::Temperature tempMsg;
   tempMsg.header.stamp = ros::Time::now();
