@@ -115,30 +115,24 @@ class KydasDriverNode{
     int m_positionInBuf;
     int m_bufSize;
     unsigned char m_currentHeaderBeingRead;
+    //Para saber qual comando deve ser enviado
+    int m_currentCommandBeingSent;
 
     //Dados a serem enviados pela serial------
     bool m_isConnected; //Indica se o driver foi conectado
     bool m_isEnabled; //Indica se o motor está ativado
-    int m_setSpeed;
-    int m_currentSpeed;
-    int m_setTorque;
-    int m_currentTorque;
-    int m_setPosition;
-    int m_currentPosition;
-    //----------------------------------------
-
-    //Para enviar as informacoes ao driver ---
-    int m_oldSetValue;
-    unsigned char m_oldSetWorkingMode;
-    unsigned char m_setWorkingMode;
+    int m_setSpeed; // graus/s
     //----------------------------------------
 
     //Dados do driver ------------------------
-    int m_current;
-    int m_rotorPosition;
-    int m_voltage;
-    int m_temperature;
-    short m_faultCode;
+    int m_current; // Amps
+    int m_rotorPosition; //
+    int m_voltage; // Volts
+    int m_temperature; // °C
+    short m_faultCode; // vide manual
+
+    int m_speed; // graus/s
+    int m_position;
     
     int m_programVersion;
 
@@ -146,7 +140,7 @@ class KydasDriverNode{
 
     unsigned char m_controlMode;
     unsigned char m_feedbackWay;
-    unsigned char m_currentWorkingMode;
+    unsigned char m_workingMode;
     //----------------------------------------
     //ROS-------------------------------------
     ros::NodeHandle m_nh;
@@ -171,17 +165,14 @@ class KydasDriverNode{
     //Servicos
     ros::ServiceServer m_enableMotorService;
     ros::ServiceServer m_disableMotorService;
-    ros::ServiceServer m_setPositionService;
     ros::ServiceServer m_setSpeedService;
-    ros::ServiceServer m_setTorqueService;
-    ros::ServiceServer m_requestQueryDataService;
 
     //Funcoes gerais de ler serial
     void readSerial();
     void readMessagesOnBuffer();
     //Funcoes para enviar comandos
     void sendMotorCommand();
-    int setMotorCommand(int value, unsigned char controlMode);
+    int setSpeed(int value, unsigned char controlMode = 1);
     int enableMotor();
     int disableMotor();
     int requestQueryData(unsigned char command);
@@ -193,9 +184,6 @@ class KydasDriverNode{
     bool enableMotor(kydas_driver::EnableMotor::Request  &req, kydas_driver::EnableMotor::Response &res);
     bool disableMotor(kydas_driver::DisableMotor::Request  &req, kydas_driver::DisableMotor::Response &res);
     bool setSpeed(kydas_driver::SetSpeed::Request  &req, kydas_driver::SetSpeed::Response &res);
-    bool setTorque(kydas_driver::SetTorque::Request  &req, kydas_driver::SetTorque::Response &res);
-    bool setPosition(kydas_driver::SetPosition::Request  &req, kydas_driver::SetPosition::Response &res);
-    bool requestQueryData(kydas_driver::RequestQueryData::Request  &req, kydas_driver::RequestQueryData::Response &res);  
 };
 
 #endif

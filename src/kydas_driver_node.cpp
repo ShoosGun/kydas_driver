@@ -4,15 +4,13 @@ KydasDriverNode::KydasDriverNode():
  m_nh{"~"},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
- m_isConnected{false}, m_isEnabled{false},
- m_oldSetWorkingMode{0},m_setWorkingMode{0}
- 
+ m_isConnected{false}, m_isEnabled{false} 
 {
   //Getting Params
   m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
-  m_nh.param<int>("loop_rate", loop_rate, 10);
-  m_nh.param<float>("command_delay", m_sendDelay, 0.5f);
+  m_nh.param<int>("loop_rate", loop_rate, 30);
+  m_nh.param<float>("command_delay", m_sendDelay, 0.1f);
 
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
@@ -34,10 +32,7 @@ KydasDriverNode::KydasDriverNode():
   //Setting Services
   m_enableMotorService = m_nh.advertiseService("enable_motor", &KydasDriverNode::enableMotor, this);
   m_disableMotorService = m_nh.advertiseService("disable_motor",&KydasDriverNode::disableMotor, this);
-  m_setPositionService = m_nh.advertiseService("set_position", &KydasDriverNode::setPosition, this);
   m_setSpeedService = m_nh.advertiseService("set_speed", &KydasDriverNode::setSpeed, this);
-  m_setTorqueService = m_nh.advertiseService("set_torque", &KydasDriverNode::setTorque, this);
-  m_requestQueryDataService = m_nh.advertiseService("request_query_data", &KydasDriverNode::requestQueryData, this);
 }
 
 KydasDriverNode::~KydasDriverNode(){
@@ -105,34 +100,23 @@ void KydasDriverNode::readMessagesOnBuffer(){
   }
 }
 
-//TODO adicionar loop para pedir as informacoes de query
 void KydasDriverNode::sendMotorCommandLoopCallback(const ros::TimerEvent&){
-  sendMotorCommand();
-}
-
-void KydasDriverNode::sendMotorCommand(){
-  int value;
-  switch((Control_Data)m_setWorkingMode){
-    case Control_Data::SpeedMode:
-      value = m_setSpeed;
+  switch (m_currentCommandBeingSent)
+  {
+    case (int)Query_Data::MAX_AMOUNT:
+    case (int)Query_Data::MAX_AMOUNT + 1:
+      if(m_setSpeed != 0 && m_isEnabled){
+        setSpeed(m_setSpeed);
+      }
       break;
-    case Control_Data::TorqueMode:
-      value = m_setTorque;
-      break;
-    case Control_Data::PositionMode:
-      value = m_setPosition;
-      break;
+    default:
+      requestQueryData((unsigned char)m_currentCommandBeingSent);
   }
-  //if(m_setWorkingMode != m_oldSetWorkingMode || value != m_oldSetValue){
-  setMotorCommand(value, m_setWorkingMode);
-  m_oldSetWorkingMode = m_setWorkingMode;
-  m_oldSetValue = value;
-  //}
+  m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % ((int)Query_Data::MAX_AMOUNT + 2);
 }
 
 void KydasDriverNode::update()
 {  
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
-  //sendMotorCommand(); //Enviando mensagem de comando caso exista necessidade
 }
