@@ -11,7 +11,7 @@ std::string displayMessage(const unsigned char* bytes, int m_bufSize){
   return ss.str();
 }
 
-void displayFaultCode(short faultCode){
+std::string displayFaultCode(short faultCode){
   return std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
 }
 
