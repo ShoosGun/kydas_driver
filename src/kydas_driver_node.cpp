@@ -70,8 +70,8 @@ void KydasDriverNode::readSerial(){
     m_positionInBuf = 0;
     m_bufSize = amount_of_not_read + amount_read;
   }
-
-  const char* cstr = displayMessage(m_buf, m_bufSize).c_str();
+  std::string s = displayMessage(m_buf, m_bufSize);
+  const char* cstr = s.c_str();
   ROS_DEBUG_NAMED(DEBUGGER_NAME_MESSAGE_RECEIVED, "message = [%s]", cstr);
 }
 

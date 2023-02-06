@@ -82,7 +82,10 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     msg.header.stamp = ros::Time::now();
     msg.faultCode = m_faultCode;
     m_faultCode_pub.publish(msg);
-    displayFaultCode(m_faultCode);
+
+    std::string s = displayFaultCode(m_faultCode);
+    const char* cstr = s.c_str();
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Fault Code = [0b%s]", cstr);
   }
   else if(dataType == Query_Data::Position){
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Received Position Data");
@@ -93,13 +96,8 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     m_programVersion = 0;
   }
 
-  std::stringstream ss("");  
-  ss << "0x" << std::hex;
-  for (int i = 0; i < 6; i++) 
-      ss << ' ' << +bytes[i];
-  
-  const std::string temp = ss.str();
-  const char* cstr = temp.c_str();
+  std::string s = displayMessage(bytes, 6);
+  const char* cstr = s.c_str();
   ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "message = [%s]", cstr);
   return 6; //Counting the header, the query data is always 6 bytes
 }
@@ -136,7 +134,10 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   faultCodeMsg.header.stamp = ros::Time::now();
   faultCodeMsg.faultCode = faultCode;
   m_faultCode_pub.publish(faultCodeMsg);
-  displayFaultCode(faultCode);
+  
+  std::string s = displayFaultCode(faultCode);
+  const char* cstr = s.c_str();
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Fault Code = [0b%s]", cstr);
 
   sensor_msgs::Temperature tempMsg;
   tempMsg.header.stamp = ros::Time::now();
@@ -161,6 +162,10 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   positionMsg.position = position;
   m_position_pub.publish(positionMsg);
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Position [%d] 10000/circle",position);
+
+  std::string s = displayMessage(bytes, 13);
+  const char* cstr = s.c_str();
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "message = [%s]", cstr);
 
   return 13;
 }

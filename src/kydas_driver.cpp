@@ -12,9 +12,7 @@ std::string displayMessage(const unsigned char* bytes, int m_bufSize){
 }
 
 void displayFaultCode(short faultCode){
-  const std::string tmp = std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
-  const char* cstr = tmp.c_str();
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "fault code = [0b%s]", cstr);
+  return std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
 }
 
 int main(int argc, char **argv)
