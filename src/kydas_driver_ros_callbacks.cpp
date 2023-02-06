@@ -31,11 +31,12 @@ bool KydasDriverNode::setSpeed(kydas_driver::SetSpeed::Request  &req,
     res.result = -1;
     return true;
   }
-  else if(!m_isEnabled){
-    ROS_WARN("the motor needs to be enabled first!");
-    res.result = -1;
-    return true;
-  }
+  //else if(!m_isEnabled){
+  //  ROS_WARN("the motor needs to be enabled first!");
+  //  res.result = -1;
+  //  return true;
+  //}
+  setSpeed(speed);
   m_setSpeed = speed;
   res.result = 0;
   return true;

@@ -28,6 +28,8 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
+#include <queue>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -117,6 +119,7 @@ class KydasDriverNode{
     unsigned char m_currentHeaderBeingRead;
     //Para saber qual comando deve ser enviado
     int m_currentCommandBeingSent;
+    std::queue<std::vector<unsigned char>> m_messagesToSend;
 
     //Dados a serem enviados pela serial------
     bool m_isConnected; //Indica se o driver foi conectado
@@ -147,7 +150,7 @@ class KydasDriverNode{
     
     //Loop de enviar dados ao motor com delay
     ros::Timer m_setValueTimer;
-    float m_sendDelay;
+    int m_commandRate;
     void sendMotorCommandLoopCallback(const ros::TimerEvent&);
 
     //Publicadores
@@ -172,10 +175,11 @@ class KydasDriverNode{
     void readMessagesOnBuffer();
     //Funcoes para enviar comandos
     void sendMotorCommand();
-    int setSpeed(int value, unsigned char controlMode = 1);
+    void setSpeed(int value, unsigned char controlMode = 1);
     int enableMotor();
     int disableMotor();
-    int requestQueryData(unsigned char command);
+    void requestQueryData(unsigned char command);
+    int sendNextMessage();
     //Funcoes para receber dados
     int readQueryData(unsigned char* bytes, int currentPosition);
     int readHeartbeatData(unsigned char* bytes, int currentPosition);

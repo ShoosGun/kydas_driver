@@ -4,19 +4,20 @@ KydasDriverNode::KydasDriverNode():
  m_nh{"~"},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
- m_isConnected{false}, m_isEnabled{false} 
+ m_isConnected{false}, m_isEnabled{false},
+ m_messagesToSend{}
 {
   //Getting Params
   m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
-  m_nh.param<int>("loop_rate", loop_rate, 30);
-  m_nh.param<float>("command_delay", m_sendDelay, 0.1f);
+  m_nh.param<int>("loop_rate", loop_rate, 50);
+  m_nh.param<int>("command_rate", m_commandRate, 10);
 
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
 
   //Creating timer to send values to driver
-  m_setValueTimer = m_nh.createTimer(ros::Duration(m_sendDelay), &KydasDriverNode::sendMotorCommandLoopCallback, this);
+  m_setValueTimer = m_nh.createTimer(ros::Duration(1.f / m_commandRate), &KydasDriverNode::sendMotorCommandLoopCallback, this);
 
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
@@ -103,20 +104,25 @@ void KydasDriverNode::readMessagesOnBuffer(){
 void KydasDriverNode::sendMotorCommandLoopCallback(const ros::TimerEvent&){
   switch (m_currentCommandBeingSent)
   {
-    case (int)Query_Data::MAX_AMOUNT:
-    case (int)Query_Data::MAX_AMOUNT + 1:
-      if(m_setSpeed != 0 && m_isEnabled){
-        setSpeed(m_setSpeed);
-      }
+    case 0:
+    case 2:
+      //if(m_isEnabled){
+      //  setSpeed(m_setSpeed);
+      //}
       break;
-    default:
-      requestQueryData((unsigned char)m_currentCommandBeingSent);
+    case 1:
+      requestQueryData((unsigned char)Query_Data::Speed);
+      break;
+    case 3:
+      requestQueryData((unsigned char)Query_Data::Position);
+      break;
   }
-  m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % ((int)Query_Data::MAX_AMOUNT + 2);
+  m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 4;
 }
 
 void KydasDriverNode::update()
 {  
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
+  sendNextMessage();
 }
