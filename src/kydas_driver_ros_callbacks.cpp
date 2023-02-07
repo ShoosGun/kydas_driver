@@ -10,7 +10,6 @@ bool KydasDriverNode::setSpeed(kydas_driver::SetSpeed::Request  &req,
   }
   
   setSpeed(speed);
-  m_setSpeed = speed;
   res.result = 0;
   return true;
 }

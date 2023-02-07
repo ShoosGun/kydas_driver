@@ -113,7 +113,6 @@ class KydasDriverNode{
 
     //Dados a serem enviados pela serial------
     bool m_isConnected; //Indica se o driver foi conectado
-    int m_setSpeed; // graus/s
     //----------------------------------------
 
     //Dados do driver ------------------------

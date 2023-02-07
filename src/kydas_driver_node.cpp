@@ -10,9 +10,9 @@ KydasDriverNode::KydasDriverNode():
   //Getting Params
   m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
-  m_nh.param<float>("loop_rate", m_loop_rate, 100);
+  m_nh.param<float>("loop_rate", m_loop_rate, 25);
   m_nh.param<float>("request_data_rate", m_request_data_rate, 8);
-  m_nh.param<float>("response_check_time", m_response_check_time, 2);
+  m_nh.param<float>("response_check_time", m_response_check_time, 0.25f);
   m_nh.param<float>("timeoutTime", m_timeoutTime, 2);
 
   //Creating buffer
@@ -110,6 +110,10 @@ void KydasDriverNode::readMessagesOnBuffer(){
 }
 
 void KydasDriverNode::requestDataLoopCallback(const ros::TimerEvent&){
+  if(!m_isConnected){
+    return;
+  }
+  
   switch (m_currentCommandBeingSent)
   {
     case 0:
@@ -131,9 +135,9 @@ void KydasDriverNode::loopCallback(const ros::TimerEvent&)
 
 void KydasDriverNode::driverReponseCheckCallback(const ros::TimerEvent&){
   if(m_isConnected){
-    ros::Duration deltaTime = m_lastReceivedDataTimeFromDriver - ros::Time::now();
+    ros::Duration deltaTime = ros::Time::now() - m_lastReceivedDataTimeFromDriver;
     double delta = deltaTime.toSec();
-    if(deltaTime.toSec() > m_timeoutTime){
+    if(delta > m_timeoutTime){
       m_isConnected = false;
       ROS_WARN("driver timedout! [%f]", delta);
     }
