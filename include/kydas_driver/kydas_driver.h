@@ -5,14 +5,7 @@
 
 #include "ros/ros.h"
 
-
-#include "kydas_driver/DisableMotor.h"
-#include "kydas_driver/EnableMotor.h"
-#include "kydas_driver/SetPosition.h"
 #include "kydas_driver/SetSpeed.h"
-#include "kydas_driver/SetTorque.h"
-
-#include "kydas_driver/RequestQueryData.h"
 
 #include "kydas_driver/MotorControllerStatus.h"
 #include "kydas_driver/MotorCurrent.h"
@@ -191,8 +184,6 @@ class KydasDriverNode{
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
 
     //Callbacks dos servicos
-    bool enableMotor(kydas_driver::EnableMotor::Request  &req, kydas_driver::EnableMotor::Response &res);
-    bool disableMotor(kydas_driver::DisableMotor::Request  &req, kydas_driver::DisableMotor::Response &res);
     bool setSpeed(kydas_driver::SetSpeed::Request  &req, kydas_driver::SetSpeed::Response &res);
 };
 
