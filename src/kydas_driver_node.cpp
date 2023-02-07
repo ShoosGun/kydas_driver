@@ -10,14 +10,18 @@ KydasDriverNode::KydasDriverNode():
   //Getting Params
   m_nh.param<int>("port", m_cport_nr, 16);
   m_nh.param<int>("bdrate", m_bdrate, 115200);
-  m_nh.param<int>("loop_rate", loop_rate, 100);
-  m_nh.param<int>("command_rate", m_commandRate, 10);
+  m_nh.param<float>("loop_rate", m_loop_rate, 100);
+  m_nh.param<float>("request_data_rate", m_request_data_rate, 8);
+  m_nh.param<float>("response_check_time", m_response_check_time, 2);
+  m_nh.param<float>("timeoutTime", m_timeoutTime, 2);
 
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
 
   //Creating timer to send values to driver
-  m_setValueTimer = m_nh.createTimer(ros::Duration(1.f / m_commandRate), &KydasDriverNode::requestDataLoopCallback, this);
+  m_loopTimer = m_nh.createTimer(ros::Rate(m_loop_rate) ,&KydasDriverNode::loopCallback, this); //Timer for general loop
+  m_requestDataTimer = m_nh.createTimer(ros::Rate(m_request_data_rate), &KydasDriverNode::requestDataLoopCallback, this); //Timer for requesting data at a steady rate (to avoid connection loss)
+  m_responseCheckTimer = m_nh.createTimer(ros::Duration(m_response_check_time), &KydasDriverNode::driverReponseCheckCallback, this); //Timer for checking if the driver is still connected
 
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
@@ -70,12 +74,12 @@ void KydasDriverNode::readSerial(){
 }
 
 void KydasDriverNode::readMessagesOnBuffer(){  
+  bool receivedMessage = false;
+
   while(m_positionInBuf < m_bufSize){
     if(m_buf[m_positionInBuf] == HEARTBEAT_HEADER){
+      receivedMessage = true;
 
-      if(!m_isConnected)
-        m_isConnected = true;//Receber mensagem de Heartbeat significa que o driver está conectado
-      
       if(m_bufSize < 13){
         m_currentHeaderBeingRead = HEARTBEAT_HEADER;
         ROS_DEBUG("trying to read heartbeat next loop");
@@ -85,6 +89,8 @@ void KydasDriverNode::readMessagesOnBuffer(){
       m_currentHeaderBeingRead = 0;
     }
     else if(m_buf[m_positionInBuf] == QUERY_HEADER){
+      receivedMessage = true;
+
       if(m_bufSize < 6){
         m_currentHeaderBeingRead = QUERY_HEADER;
         ROS_DEBUG("trying to read query next loop");
@@ -96,6 +102,13 @@ void KydasDriverNode::readMessagesOnBuffer(){
     else{
       m_positionInBuf++;
     }
+  }
+  if(receivedMessage){
+    if(!m_isConnected){
+      m_isConnected = true;
+      ROS_INFO("driver connected!");
+    }
+    m_lastReceivedDataTimeFromDriver = ros::Time::now();
   }
 }
 
@@ -112,9 +125,20 @@ void KydasDriverNode::requestDataLoopCallback(const ros::TimerEvent&){
   m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 2;
 }
 
-void KydasDriverNode::update()
+void KydasDriverNode::loopCallback(const ros::TimerEvent&)
 {  
+  sendNextMessage(); //Enviar a proxima mensagem na queue
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
-  sendNextMessage(); //Enviar a proxima mensagem na queue
+}
+
+void KydasDriverNode::driverReponseCheckCallback(const ros::TimerEvent&){
+  if(m_isConnected){
+    ros::Duration deltaTime = m_lastReceivedDataTimeFromDriver - ros::Time::now();
+    double delta = deltaTime.toSec();
+    if(deltaTime.toSec() > m_timeoutTime){
+      m_isConnected = false;
+      ROS_WARN("driver timedout! [%f]", delta);
+    }
+  }
 }

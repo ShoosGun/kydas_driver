@@ -101,10 +101,7 @@ class KydasDriverNode{
     KydasDriverNode();
     ~KydasDriverNode();
 
-    void update();
     int openComport();
-
-    int loop_rate;
 
   private:
     //Dados para comunicacao serial
@@ -147,10 +144,20 @@ class KydasDriverNode{
     //ROS-------------------------------------
     ros::NodeHandle m_nh;
     
-    //Loop de enviar dados ao motor com delay
-    ros::Timer m_setValueTimer;
-    int m_commandRate;
+    //Loop de enviar e ler dados
+    ros::Timer m_loopTimer;
+    float m_loop_rate;
+    void loopCallback(const ros::TimerEvent&);
+    //Loop de requesitar dados
+    ros::Timer m_requestDataTimer;
+    float m_request_data_rate;
     void requestDataLoopCallback(const ros::TimerEvent&);
+    //Loop de verificar se o driver esta respondendo
+    ros::Timer m_responseCheckTimer;
+    ros::Time m_lastReceivedDataTimeFromDriver;
+    float m_timeoutTime;
+    float m_response_check_time;
+    void driverReponseCheckCallback(const ros::TimerEvent&);
 
     //Publicadores
     ros::Publisher m_controllerStatus_pub;

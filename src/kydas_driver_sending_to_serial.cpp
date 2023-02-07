@@ -47,7 +47,6 @@ int KydasDriverNode::sendNextMessage(){
     if(m_messagesToSend.size() <= 0){
         return 0;
     }
-
     std::vector<unsigned char> message = m_messagesToSend.front();
     int result = RS232_SendBuf(m_cport_nr, &message[0], message.size());   
     std::string s = displayMessage(&message[0], message.size());

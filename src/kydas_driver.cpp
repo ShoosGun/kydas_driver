@@ -20,7 +20,6 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "kydas_driver");
     
   KydasDriverNode node{};
-  ros::Rate loop_rate(100);
 
   if(node.openComport())
   {
@@ -28,12 +27,7 @@ int main(int argc, char **argv)
     return 0;
   }
   
-  while (ros::ok())
-  {
-    node.update();
-    ros::spinOnce();
-    loop_rate.sleep();
-  }
+  ros::spin();
 
   return 0;
 }
