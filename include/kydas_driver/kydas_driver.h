@@ -123,7 +123,6 @@ class KydasDriverNode{
 
     //Dados a serem enviados pela serial------
     bool m_isConnected; //Indica se o driver foi conectado
-    bool m_isEnabled; //Indica se o motor está ativado
     int m_setSpeed; // graus/s
     //----------------------------------------
 
@@ -151,7 +150,7 @@ class KydasDriverNode{
     //Loop de enviar dados ao motor com delay
     ros::Timer m_setValueTimer;
     int m_commandRate;
-    void sendMotorCommandLoopCallback(const ros::TimerEvent&);
+    void requestDataLoopCallback(const ros::TimerEvent&);
 
     //Publicadores
     ros::Publisher m_controllerStatus_pub;

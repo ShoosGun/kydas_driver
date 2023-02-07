@@ -5,16 +5,17 @@ void KydasDriverNode::setSpeed(int value, unsigned char controlMode){
         ROS_WARN("can't set motor command: driver not connected");
         return;
     }
-    else if(!m_isEnabled){
-        ROS_WARN("can't set motor command: motor not enabled");
-        return;
-    }
     char* valueInBytes = static_cast<char*>(static_cast<void*>(&value));
     std::vector<unsigned char> command ={CONTROL_HEADER,0,0,0,0,0,0,0};
     
     //Placing the command mode
     //TODO estudar os diferentes modos e os efeitos no motor
-    command[1] = controlMode;// -- Precisamos verificar se realmente nao tem que modificar nada quando em modo serial
+    if(value == 0){
+        command[1] = 0;
+    }
+    else{
+        command[1] = controlMode;
+    }
     //Placing the value
     command[4] = valueInBytes[3]; 
     command[5] = valueInBytes[2]; 
