@@ -124,7 +124,7 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
   m_temperature = (int)bytes[currentPosition + 5];
   m_voltage = (int)bytes[currentPosition + 6];
 
-  m_speed = ((short)(bytes[currentPosition + 7] << 8 | bytes[currentPosition + 8])) / 0.15f;
+  m_speed = ((short)(bytes[currentPosition + 7] << 8 | bytes[currentPosition + 8]));
 
   m_position = (int)(bytes[currentPosition + 9] << 24 | bytes[currentPosition + 10] << 16 | bytes[currentPosition + 11] << 8 | bytes[currentPosition + 12]);
 
@@ -158,7 +158,8 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
-  speedMsg.speed = m_speed;
+  speedMsg.speed = m_speed / 0.15f;
+  speedMsg.rawSpeed = m_speed;
   m_speed_pub.publish(speedMsg);
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Speed [%d] DPS", m_speed);
   
