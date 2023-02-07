@@ -42,11 +42,8 @@ KydasDriverNode::~KydasDriverNode(){
   delete[] m_buf;
 }
 
-int KydasDriverNode::openComport(){
-  
-  int a = RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
-  ROS_INFO("%d", a);
-  return a;
+int KydasDriverNode::openComport(){  
+  return RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
 }
 
 void KydasDriverNode::readSerial(){
