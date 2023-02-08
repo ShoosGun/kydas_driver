@@ -5,8 +5,6 @@
 
 #include "ros/ros.h"
 
-#include "kydas_driver/SetSpeed.h"
-
 #include "kydas_driver/MotorControllerStatus.h"
 #include "kydas_driver/MotorCurrent.h"
 #include "kydas_driver/MotorEletricAngle.h"
@@ -16,6 +14,8 @@
 #include "kydas_driver/MotorRotorPosition.h"
 #include "kydas_driver/MotorSpeed.h"
 #include "kydas_driver/MotorVoltage.h"
+
+#include "kydas_driver/CmdSpeed.h"
 
 #include "sensor_msgs/Temperature.h"
 
@@ -163,10 +163,8 @@ class KydasDriverNode{
     ros::Publisher m_temp_pub;
     ros::Publisher m_voltage_pub;
 
-    //Servicos
-    ros::ServiceServer m_enableMotorService;
-    ros::ServiceServer m_disableMotorService;
-    ros::ServiceServer m_setSpeedService;
+    //Clientes
+    ros::Subscriber m_cmdSpeed_sub;
 
     //Funcoes gerais de ler serial
     void readSerial();
@@ -182,8 +180,8 @@ class KydasDriverNode{
     int readQueryData(unsigned char* bytes, int currentPosition);
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
 
-    //Callbacks dos servicos
-    bool setSpeed(kydas_driver::SetSpeed::Request  &req, kydas_driver::SetSpeed::Response &res);
+    //Callbacks dos subscrito
+    void cmdSpeed(const kydas_driver::CmdSpeed::ConstPtr& cmd);
 };
 
 #endif

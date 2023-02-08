@@ -1,7 +1,7 @@
 #include "kydas_driver/kydas_driver.h"
 
 KydasDriverNode::KydasDriverNode(): 
- m_nh{"~"},
+ m_nh{},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
  m_isConnected{false},
@@ -14,6 +14,7 @@ KydasDriverNode::KydasDriverNode():
   m_nh.param<float>("request_data_rate", m_request_data_rate, 8);
   m_nh.param<float>("response_check_time", m_response_check_time, 0.25f);
   m_nh.param<float>("timeoutTime", m_timeoutTime, 2);
+  
 
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
@@ -35,7 +36,7 @@ KydasDriverNode::KydasDriverNode():
   m_temp_pub = m_nh.advertise<sensor_msgs::Temperature>("temperature", 1000);
   m_voltage_pub = m_nh.advertise<kydas_driver::MotorVoltage>("voltage", 1000);
   //Setting Services
-  m_setSpeedService = m_nh.advertiseService("set_speed", &KydasDriverNode::setSpeed, this);
+  m_cmdSpeed_sub = m_nh.subscribe("cmd_speed", 1000, &KydasDriverNode::cmdSpeed, this);
 }
 
 KydasDriverNode::~KydasDriverNode(){

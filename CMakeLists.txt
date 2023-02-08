@@ -60,6 +60,7 @@ add_message_files(
   MotorRotorPosition.msg
   MotorSpeed.msg
   MotorVoltage.msg
+  CmdSpeed.msg
 )
 
 ## Generate services in the 'srv' folder
