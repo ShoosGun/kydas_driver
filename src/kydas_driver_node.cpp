@@ -8,12 +8,13 @@ KydasDriverNode::KydasDriverNode():
  m_messagesToSend{}
 {
   //Getting Params
-  m_nh.param<int>("port", m_cport_nr, 16);
-  m_nh.param<int>("bdrate", m_bdrate, 115200);
-  m_nh.param<float>("loop_rate", m_loop_rate, 25);
-  m_nh.param<float>("request_data_rate", m_request_data_rate, 8);
-  m_nh.param<float>("response_check_time", m_response_check_time, 0.25f);
-  m_nh.param<float>("timeoutTime", m_timeoutTime, 2);
+  ros::NodeHandle nh_param("~");
+  nh_param.param<int>("port", m_cport_nr, 16);
+  nh_param.param<int>("bdrate", m_bdrate, 115200);
+  nh_param.param<float>("loop_rate", m_loop_rate, 25);
+  nh_param.param<float>("request_data_rate", m_request_data_rate, 8);
+  nh_param.param<float>("response_check_time", m_response_check_time, 0.25f);
+  nh_param.param<float>("timeoutTime", m_timeoutTime, 2);
   
 
   //Creating buffer
