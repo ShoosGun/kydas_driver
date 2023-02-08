@@ -14,7 +14,7 @@ KydasDriverNode::KydasDriverNode():
   nh_param.param<float>("loop_rate", m_loop_rate, 25);
   nh_param.param<float>("request_data_rate", m_request_data_rate, 8);
   nh_param.param<float>("response_check_time", m_response_check_time, 0.25f);
-  nh_param.param<float>("timeoutTime", m_timeoutTime, 2);
+  nh_param.param<float>("timeout_time", m_timeoutTime, 2);
   
 
   //Creating buffer
