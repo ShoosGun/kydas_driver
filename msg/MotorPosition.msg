@@ -1,3 +1,3 @@
 Header header
-int32 position
+float64 position
 int32 rawPosition

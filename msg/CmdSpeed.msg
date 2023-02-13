@@ -1,1 +1,1 @@
-int32 speed
+float64 speed

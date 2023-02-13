@@ -1,3 +1,3 @@
 Header header
-int32 speed
+float64 speed
 int32 rawSpeed

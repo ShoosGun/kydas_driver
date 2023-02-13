@@ -35,10 +35,10 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     m_speed = (short)(bytes[currentPosition + 2] << 8 | bytes[currentPosition + 3]);
     kydas_driver::MotorSpeed msg;
     msg.header.stamp = ros::Time::now();
-    msg.speed = (int)(m_speed / 0.15f);
+    msg.speed = (m_speed / 0.15f) * M_PI / 180.f;
     msg.rawSpeed = m_speed;
     m_speed_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%d] DPS (%d)", (int)(m_speed / 0.15f), m_speed);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", msg.speed, m_speed);
   }
   else if(dataType == Query_Data::Current){
     //2 bytes value
@@ -93,10 +93,10 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
     m_position = (int)(bytes[currentPosition + 2] << 24 | bytes[currentPosition + 3] << 16 | bytes[currentPosition + 4] << 8 | bytes[currentPosition + 5]);
     kydas_driver::MotorPosition positionMsg;
     positionMsg.header.stamp = ros::Time::now();
-    positionMsg.position = (m_position % 10000 * 360) / 10000;
+    positionMsg.position = (m_position  / 10000.f )* 2 * M_PI;
     positionMsg.rawPosition = m_position;
     m_position_pub.publish(positionMsg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%d) degrees", m_position, (m_position % 10000 * 360) / 10000); //Para conseguir em graus -> (m_position % 10000 * 360) / 10000
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", m_position, positionMsg.position);
   }
   else if(dataType == Query_Data::ProgramVersion){  
     //4 bytes value
@@ -158,17 +158,17 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
-  speedMsg.speed = m_speed / 0.15f;
+  speedMsg.speed = (m_speed / 0.15f) * 2 * M_PI;
   speedMsg.rawSpeed = m_speed;
   m_speed_pub.publish(speedMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Speed [%d] DPS", m_speed);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Speed [%f] RPS", speedMsg.speed);
   
   kydas_driver::MotorPosition positionMsg;
   positionMsg.header.stamp = ros::Time::now();
-  positionMsg.position = (m_position % 10000 * 360) / 10000;
+  positionMsg.position = (m_position / 10000.f) * 2 * M_PI;
   positionMsg.rawPosition = m_position;
   m_position_pub.publish(positionMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Position [%d] 10000/circle (%d) degrees", m_position, (m_position % 10000 * 360) / 10000); //Para conseguir em graus -> (m_position % 10000 * 360) / 10000
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", m_position, positionMsg.position);
 
   std::string s = displayMessage(&bytes[currentPosition], 13);
   const char* cstr = s.c_str();
