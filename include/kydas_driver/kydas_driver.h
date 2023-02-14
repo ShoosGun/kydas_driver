@@ -27,6 +27,7 @@
 #include <string>
 #include <array>
 #include <queue>
+#include <bitset>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -90,17 +91,28 @@ enum class ControlStatus_WorkingMode{
   RelativePosition
 };
 */
-std::string displayMessage(const unsigned char* bytes, int n);
-std::string displayFaultCode(short faultCode);
+std::string displayMessage(const unsigned char* bytes, int m_bufSize){
+  std::stringstream ss("");
+  
+  ss << "0x" << std::hex;
+  for (int i = 0; i < m_bufSize; i++) 
+      ss << ' ' << +bytes[i];
+      
+  return ss.str();
+}
 
-class KydasDriver : public hardware_interface::RobotHW{
+std::string displayFaultCode(short faultCode){
+  return std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
+}
+
+class KydasDriver{
   public:
 
-    KydasDriver();
+    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2f);
     ~KydasDriver();
 
     int openComport();
-
+    void update();
   private:
     //Dados para comunicacao serial
     int m_cport_nr;
@@ -137,38 +149,13 @@ class KydasDriver : public hardware_interface::RobotHW{
     unsigned char m_controlMode;
     unsigned char m_feedbackWay;
     unsigned char m_workingMode;
-    //----------------------------------------
-    //ROS-------------------------------------
-    ros::NodeHandle m_nh;
-    
-    //Loop de enviar e ler dados
-    ros::Timer m_loopTimer;
-    float m_loop_rate;
-    void loopCallback(const ros::TimerEvent&);
-    //Para saber qual comando deve ser enviado
-    //Loop de verificar se o driver esta respondendo
-    ros::Timer m_responseCheckTimer;
-    ros::Time m_lastReceivedDataTimeFromDriver;
+        
     float m_timeoutTime;
-    float m_response_check_time;
-    void driverReponseCheckCallback(const ros::TimerEvent&);
-
-    //Publicadores
-    ros::Publisher m_controllerStatus_pub;
-    ros::Publisher m_current_pub;
-    ros::Publisher m_eletricAngle_pub;
-    ros::Publisher m_faultCode_pub;
-    ros::Publisher m_position_pub;
-    ros::Publisher m_programVersion_pub;
-    ros::Publisher m_rotorPosition_pub;
-    ros::Publisher m_speed_pub;
-    ros::Publisher m_temp_pub;
-    ros::Publisher m_voltage_pub;
 
     //Funcoes gerais de ler serial
     void readSerial();
     void readMessagesOnBuffer();
-    //Funcoes para enviar comandos     
+    //Funcoes para enviar comandos
     int m_currentCommandBeingSent;
     void sendSerial();
 
@@ -178,9 +165,5 @@ class KydasDriver : public hardware_interface::RobotHW{
     //Funcoes para receber dados
     int readQueryData(unsigned char* bytes, int currentPosition);
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
-
-    //Callbacks dos subscrito
-    void cmdSpeed(const kydas_driver::CmdSpeed::ConstPtr& cmd);
 };
-
 #endif
