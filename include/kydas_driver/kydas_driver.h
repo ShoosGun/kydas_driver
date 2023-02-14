@@ -117,6 +117,7 @@ class KydasDriver : public hardware_interface::RobotHW{
 
     //Dados a serem enviados pela serial------
     bool m_isConnected; //Indica se o driver foi conectado
+    double m_speed_cmd;
     //----------------------------------------
 
     //Dados do driver ------------------------
@@ -126,8 +127,10 @@ class KydasDriver : public hardware_interface::RobotHW{
     int m_temperature; // °C
     short m_faultCode; // vide manual
 
-    int m_speed; // graus/s
-    int m_position;
+    int m_raw_speed; // rad/s
+    double m_speed;
+    int m_raw_position;
+    double m_position; // rad
     
     int m_programVersion;
 
@@ -166,9 +169,6 @@ class KydasDriver : public hardware_interface::RobotHW{
     ros::Publisher m_speed_pub;
     ros::Publisher m_temp_pub;
     ros::Publisher m_voltage_pub;
-
-    //Clientes
-    ros::Subscriber m_cmdSpeed_sub;
 
     //Funcoes gerais de ler serial
     void readSerial();

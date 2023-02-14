@@ -32,13 +32,13 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
   }
   else if(dataType == Query_Data::Speed){
     //2 bytes value
-    m_speed = (short)(bytes[currentPosition + 2] << 8 | bytes[currentPosition + 3]);
+    m_raw_speed = (short)(bytes[currentPosition + 2] << 8 | bytes[currentPosition + 3]);
     kydas_driver::MotorSpeed msg;
     msg.header.stamp = ros::Time::now();
-    msg.speed = (m_speed / 0.15f) * M_PI / 180.f;
-    msg.rawSpeed = m_speed;
+    msg.speed = (m_raw_speed / 0.15f) * M_PI / 180.f;
+    msg.rawSpeed = m_raw_speed;
     m_speed_pub.publish(msg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", msg.speed, m_speed);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", msg.speed, m_raw_speed);
   }
   else if(dataType == Query_Data::Current){
     //2 bytes value
@@ -90,13 +90,13 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
   }
   else if(dataType == Query_Data::Position){
     //4 bytes value
-    m_position = (int)(bytes[currentPosition + 2] << 24 | bytes[currentPosition + 3] << 16 | bytes[currentPosition + 4] << 8 | bytes[currentPosition + 5]);
+    m_raw_position = (int)(bytes[currentPosition + 2] << 24 | bytes[currentPosition + 3] << 16 | bytes[currentPosition + 4] << 8 | bytes[currentPosition + 5]);
     kydas_driver::MotorPosition positionMsg;
     positionMsg.header.stamp = ros::Time::now();
-    positionMsg.position = (m_position  / 10000.f )* 2 * M_PI;
-    positionMsg.rawPosition = m_position;
+    positionMsg.position = (m_raw_position  / 10000.f )* 2 * M_PI;
+    positionMsg.rawPosition = m_raw_position;
     m_position_pub.publish(positionMsg);
-    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", m_position, positionMsg.position);
+    ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", m_raw_position, positionMsg.position);
   }
   else if(dataType == Query_Data::ProgramVersion){  
     //4 bytes value
@@ -124,9 +124,9 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   m_temperature = (int)bytes[currentPosition + 5];
   m_voltage = (int)bytes[currentPosition + 6];
 
-  m_speed = ((short)(bytes[currentPosition + 7] << 8 | bytes[currentPosition + 8]));
+  m_raw_speed = ((short)(bytes[currentPosition + 7] << 8 | bytes[currentPosition + 8]));
 
-  m_position = (int)(bytes[currentPosition + 9] << 24 | bytes[currentPosition + 10] << 16 | bytes[currentPosition + 11] << 8 | bytes[currentPosition + 12]);
+  m_raw_position = (int)(bytes[currentPosition + 9] << 24 | bytes[currentPosition + 10] << 16 | bytes[currentPosition + 11] << 8 | bytes[currentPosition + 12]);
 
   //Publishing all this data
   kydas_driver::MotorEletricAngle eletricAngleMsg;
@@ -158,17 +158,17 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
-  speedMsg.speed = (m_speed / 0.15f) * M_PI / 180.f;
-  speedMsg.rawSpeed = m_speed;
+  speedMsg.speed = (m_raw_speed / 0.15f) * M_PI / 180.f;
+  speedMsg.rawSpeed = m_raw_speed;
   m_speed_pub.publish(speedMsg);
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Speed [%f] RPS", speedMsg.speed);
   
   kydas_driver::MotorPosition positionMsg;
   positionMsg.header.stamp = ros::Time::now();
-  positionMsg.position = (m_position / 10000.f) * 2 * M_PI;
-  positionMsg.rawPosition = m_position;
+  positionMsg.position = (m_raw_position / 10000.f) * 2 * M_PI;
+  positionMsg.rawPosition = m_raw_position;
   m_position_pub.publish(positionMsg);
-  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", m_position, positionMsg.position);
+  ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", m_raw_position, positionMsg.position);
 
   std::string s = displayMessage(&bytes[currentPosition], 13);
   const char* cstr = s.c_str();
