@@ -4,15 +4,13 @@ KydasDriver::KydasDriver():
  m_nh{},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
- m_isConnected{false},
- m_messagesToSend{}
+ m_isConnected{false}
 {
   //Getting Params
   ros::NodeHandle nh_param("~");
   nh_param.param<int>("port", m_cport_nr, 16);
   nh_param.param<int>("bdrate", m_bdrate, 115200);
   nh_param.param<float>("loop_rate", m_loop_rate, 25);
-  nh_param.param<float>("request_data_rate", m_request_data_rate, 8);
   nh_param.param<float>("response_check_time", m_response_check_time, 0.25f);
   nh_param.param<float>("timeout_time", m_timeoutTime, 2);
   
@@ -22,7 +20,6 @@ KydasDriver::KydasDriver():
 
   //Creating timer to send values to driver
   m_loopTimer = m_nh.createTimer(ros::Rate(m_loop_rate) ,&KydasDriver::loopCallback, this); //Timer for general loop
-  m_requestDataTimer = m_nh.createTimer(ros::Rate(m_request_data_rate), &KydasDriver::requestDataLoopCallback, this); //Timer for requesting data at a steady rate (to avoid connection loss)
   m_responseCheckTimer = m_nh.createTimer(ros::Duration(m_response_check_time), &KydasDriver::driverReponseCheckCallback, this); //Timer for checking if the driver is still connected
 
   //Setting Publishers
@@ -111,7 +108,7 @@ void KydasDriver::readMessagesOnBuffer(){
   }
 }
 
-void KydasDriver::requestDataLoopCallback(const ros::TimerEvent&){
+void KydasDriver::sendSerial(){
   if(!m_isConnected){
     return;
   }
@@ -124,13 +121,15 @@ void KydasDriver::requestDataLoopCallback(const ros::TimerEvent&){
     case 1:
       requestQueryData((unsigned char)Query_Data::Position);
       break;
+    case 2:
+      setSpeed(m_speed_cmd * 180 / M_PI); //command is in rps, but setSpeed works with dps
   }
-  m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 2;
+  m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 3;
 }
 
 void KydasDriver::loopCallback(const ros::TimerEvent&)
 {  
-  sendNextMessage(); //Enviar a proxima mensagem na queue
+  sendSerial(); //Enviar no serial
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
 }

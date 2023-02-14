@@ -25,7 +25,7 @@
 
 #include <sstream>
 #include <string>
-#include <vector>
+#include <array>
 #include <queue>
 
 const unsigned char CONTROL_HEADER = 0xE0;
@@ -37,6 +37,7 @@ const char DEBUGGER_NAME_QUERY_DATA_PREVIEW []= "query_data_preview";
 const char DEBUGGER_NAME_MESSAGE_RECEIVED [] = "message_received";
 const char DEBUGGER_NAME_MESSAGE_SENT [] = "message_sent";
 const char DEBUGGER_NAME_COMMAND_SENT [] = "command_sent";
+const char DEBUGGER_NAME_DATA_REQUEST_SENT [] = "data_request_sent";
 
 const int BUFFER_SIZE = 4096;
 
@@ -111,9 +112,6 @@ class KydasDriver : public hardware_interface::RobotHW{
     int m_positionInBuf;
     int m_bufSize;
     unsigned char m_currentHeaderBeingRead;
-    //Para saber qual comando deve ser enviado
-    int m_currentCommandBeingSent;
-    std::queue<std::vector<unsigned char>> m_messagesToSend;
 
     //Dados a serem enviados pela serial------
     bool m_isConnected; //Indica se o driver foi conectado
@@ -147,10 +145,7 @@ class KydasDriver : public hardware_interface::RobotHW{
     ros::Timer m_loopTimer;
     float m_loop_rate;
     void loopCallback(const ros::TimerEvent&);
-    //Loop de requesitar dados
-    ros::Timer m_requestDataTimer;
-    float m_request_data_rate;
-    void requestDataLoopCallback(const ros::TimerEvent&);
+    //Para saber qual comando deve ser enviado
     //Loop de verificar se o driver esta respondendo
     ros::Timer m_responseCheckTimer;
     ros::Time m_lastReceivedDataTimeFromDriver;
@@ -173,13 +168,13 @@ class KydasDriver : public hardware_interface::RobotHW{
     //Funcoes gerais de ler serial
     void readSerial();
     void readMessagesOnBuffer();
-    //Funcoes para enviar comandos
-    void sendMotorCommand();
+    //Funcoes para enviar comandos     
+    int m_currentCommandBeingSent;
+    void sendSerial();
+
     void setSpeed(int value, unsigned char controlMode = 1);
-    int enableMotor();
-    int disableMotor();
     void requestQueryData(unsigned char command);
-    int sendNextMessage();
+    int sendMessage(std::array<unsigned char> msg);
     //Funcoes para receber dados
     int readQueryData(unsigned char* bytes, int currentPosition);
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
