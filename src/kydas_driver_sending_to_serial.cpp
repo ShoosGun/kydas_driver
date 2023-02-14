@@ -1,7 +1,7 @@
 #include "kydas_driver/kydas_driver.h"
 
 void KydasDriver::setSpeed(int value, unsigned char controlMode){
-    if(!m_isConnected){
+    if(!isConnected){
         ROS_WARN("can't set motor command: driver not connected");
         return;
     }
@@ -25,7 +25,7 @@ void KydasDriver::setSpeed(int value, unsigned char controlMode){
 }
 
 void KydasDriver::requestQueryData(unsigned char command){
-    if(!m_isConnected){
+    if(!isConnected){
         ROS_WARN("can't request query data: driver not connected");
         return;
     }

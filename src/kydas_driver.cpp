@@ -3,7 +3,7 @@
 KydasDriver::KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2f): 
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
- m_isConnected{false},
+ isConnected{false},
  m_cport_nr{port}, m_bdrate{bdrate}, m_timeoutTime{timeout_time}
 {
   //Creating buffer
@@ -73,8 +73,8 @@ void KydasDriver::readMessagesOnBuffer(){
     }
   }
   if(receivedMessage){
-    if(!m_isConnected){
-      m_isConnected = true;
+    if(!isConnected){
+      isConnected = true;
       ROS_INFO("driver connected!");
     }
     m_lastReceivedDataTimeFromDriver = ros::Time::now();
@@ -82,7 +82,7 @@ void KydasDriver::readMessagesOnBuffer(){
 }
 
 void KydasDriver::sendSerial(){
-  if(!m_isConnected){
+  if(!isConnected){
     return;
   }
   
@@ -95,7 +95,7 @@ void KydasDriver::sendSerial(){
       requestQueryData((unsigned char)Query_Data::Position);
       break;
     case 2:
-      setSpeed(m_speed_cmd * 180 / M_PI); //command is in rps, but setSpeed works with dps
+      setSpeed(speed_cmd * 180 / M_PI); //command is in rps, but setSpeed works with dps
   }
   m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 3;
 }
@@ -110,11 +110,11 @@ void KydasDriver::loopCallback(const ros::TimerEvent&)
 }
 
 void KydasDriver::driverReponseCheck(){
-  if(m_isConnected){
+  if(isConnected){
     ros::Duration deltaTime = ros::Time::now() - m_lastReceivedDataTimeFromDriver;
     double delta = deltaTime.toSec();
     if(delta > m_timeoutTime){
-      m_isConnected = false;
+      isConnected = false;
       ROS_WARN("driver timedout! [%f]", delta);
     }
   }

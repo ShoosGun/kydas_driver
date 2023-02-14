@@ -113,6 +113,30 @@ class KydasDriver{
 
     int openComport();
     void update();
+     //Dados a serem enviados pela serial------
+    bool isConnected; //Indica se o driver foi conectado
+    double speed_cmd;
+    //----------------------------------------
+
+    //Dados do driver ------------------------
+    int current; // Amps
+    int rotorPosition; //
+    int voltage; // Volts
+    int temperature; // °C
+    short faultCode; // vide manual
+
+    int raw_speed; // rad/s
+    double speed;
+    int raw_position;
+    double position; // rad
+    
+    int programVersion;
+
+    int eletricalAngle;
+
+    unsigned char controlMode;
+    unsigned char feedbackWay;
+    unsigned char workingMode;
   private:
     //Dados para comunicacao serial
     int m_cport_nr;
@@ -124,32 +148,7 @@ class KydasDriver{
     int m_positionInBuf;
     int m_bufSize;
     unsigned char m_currentHeaderBeingRead;
-
-    //Dados a serem enviados pela serial------
-    bool m_isConnected; //Indica se o driver foi conectado
-    double m_speed_cmd;
-    //----------------------------------------
-
-    //Dados do driver ------------------------
-    int m_current; // Amps
-    int m_rotorPosition; //
-    int m_voltage; // Volts
-    int m_temperature; // °C
-    short m_faultCode; // vide manual
-
-    int m_raw_speed; // rad/s
-    double m_speed;
-    int m_raw_position;
-    double m_position; // rad
-    
-    int m_programVersion;
-
-    int m_eletricalAngle;
-
-    unsigned char m_controlMode;
-    unsigned char m_feedbackWay;
-    unsigned char m_workingMode;
-        
+           
     float m_timeoutTime;
 
     //Funcoes gerais de ler serial
