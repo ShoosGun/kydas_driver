@@ -158,7 +158,7 @@ int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition
 
   kydas_driver::MotorSpeed speedMsg;
   speedMsg.header.stamp = ros::Time::now();
-  speedMsg.speed = (m_speed / 0.15f) * 2 * M_PI;
+  speedMsg.speed = (m_speed / 0.15f) * M_PI / 180.f;
   speedMsg.rawSpeed = m_speed;
   m_speed_pub.publish(speedMsg);
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "Speed [%f] RPS", speedMsg.speed);
