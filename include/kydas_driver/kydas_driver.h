@@ -5,6 +5,10 @@
 
 #include "ros/ros.h"
 
+#include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/robot_hw.h>
+
 #include "kydas_driver/MotorControllerStatus.h"
 #include "kydas_driver/MotorCurrent.h"
 #include "kydas_driver/MotorEletricAngle.h"
