@@ -1,6 +1,6 @@
 #include "kydas_driver/kydas_driver.h"
 
-KydasDriverNode::KydasDriverNode(): 
+KydasDriver::KydasDriver(): 
  m_nh{},
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
@@ -21,9 +21,9 @@ KydasDriverNode::KydasDriverNode():
   m_buf = new unsigned char[m_bufferMaxSize];
 
   //Creating timer to send values to driver
-  m_loopTimer = m_nh.createTimer(ros::Rate(m_loop_rate) ,&KydasDriverNode::loopCallback, this); //Timer for general loop
-  m_requestDataTimer = m_nh.createTimer(ros::Rate(m_request_data_rate), &KydasDriverNode::requestDataLoopCallback, this); //Timer for requesting data at a steady rate (to avoid connection loss)
-  m_responseCheckTimer = m_nh.createTimer(ros::Duration(m_response_check_time), &KydasDriverNode::driverReponseCheckCallback, this); //Timer for checking if the driver is still connected
+  m_loopTimer = m_nh.createTimer(ros::Rate(m_loop_rate) ,&KydasDriver::loopCallback, this); //Timer for general loop
+  m_requestDataTimer = m_nh.createTimer(ros::Rate(m_request_data_rate), &KydasDriver::requestDataLoopCallback, this); //Timer for requesting data at a steady rate (to avoid connection loss)
+  m_responseCheckTimer = m_nh.createTimer(ros::Duration(m_response_check_time), &KydasDriver::driverReponseCheckCallback, this); //Timer for checking if the driver is still connected
 
   //Setting Publishers
   m_controllerStatus_pub = m_nh.advertise<kydas_driver::MotorControllerStatus>("controllerStatus", 1000);
@@ -37,18 +37,18 @@ KydasDriverNode::KydasDriverNode():
   m_temp_pub = m_nh.advertise<sensor_msgs::Temperature>("temperature", 1000);
   m_voltage_pub = m_nh.advertise<kydas_driver::MotorVoltage>("voltage", 1000);
   //Setting Services
-  m_cmdSpeed_sub = m_nh.subscribe("cmd_speed", 1000, &KydasDriverNode::cmdSpeed, this);
+  m_cmdSpeed_sub = m_nh.subscribe("cmd_speed", 1000, &KydasDriver::cmdSpeed, this);
 }
 
-KydasDriverNode::~KydasDriverNode(){
+KydasDriver::~KydasDriver(){
   delete[] m_buf;
 }
 
-int KydasDriverNode::openComport(){  
+int KydasDriver::openComport(){  
   return RS232_OpenComport(m_cport_nr, m_bdrate, m_mode.c_str(), 0);
 }
 
-void KydasDriverNode::readSerial(){
+void KydasDriver::readSerial(){
   if(m_currentHeaderBeingRead == 0){ //Nao temos mensagem pendente. ler normalmente
     m_bufSize = RS232_PollComport(m_cport_nr, m_buf, m_bufferMaxSize - 1);
     m_positionInBuf = 0;
@@ -72,7 +72,7 @@ void KydasDriverNode::readSerial(){
   ROS_DEBUG_NAMED(DEBUGGER_NAME_MESSAGE_RECEIVED, "message = [%s]", cstr);
 }
 
-void KydasDriverNode::readMessagesOnBuffer(){  
+void KydasDriver::readMessagesOnBuffer(){  
   bool receivedMessage = false;
 
   while(m_positionInBuf < m_bufSize){
@@ -111,7 +111,7 @@ void KydasDriverNode::readMessagesOnBuffer(){
   }
 }
 
-void KydasDriverNode::requestDataLoopCallback(const ros::TimerEvent&){
+void KydasDriver::requestDataLoopCallback(const ros::TimerEvent&){
   if(!m_isConnected){
     return;
   }
@@ -128,14 +128,14 @@ void KydasDriverNode::requestDataLoopCallback(const ros::TimerEvent&){
   m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 2;
 }
 
-void KydasDriverNode::loopCallback(const ros::TimerEvent&)
+void KydasDriver::loopCallback(const ros::TimerEvent&)
 {  
   sendNextMessage(); //Enviar a proxima mensagem na queue
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
 }
 
-void KydasDriverNode::driverReponseCheckCallback(const ros::TimerEvent&){
+void KydasDriver::driverReponseCheckCallback(const ros::TimerEvent&){
   if(m_isConnected){
     ros::Duration deltaTime = ros::Time::now() - m_lastReceivedDataTimeFromDriver;
     double delta = deltaTime.toSec();

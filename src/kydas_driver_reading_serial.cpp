@@ -1,7 +1,7 @@
 #include "kydas_driver/kydas_driver.h"
 
 
-int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
+int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
   if(bytes[currentPosition] != QUERY_HEADER){
     return 0; //Means we read nothing, because it isn't the right return data
   }
@@ -113,7 +113,7 @@ int KydasDriverNode::readQueryData(unsigned char* bytes, int currentPosition){
   return 6; //Counting the header, the query data is always 6 bytes
 }
 
-int KydasDriverNode::readHeartbeatData(unsigned char* bytes, int currentPosition){
+int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   if(bytes[currentPosition] != HEARTBEAT_HEADER){
     return 0; //Means we read nothing, because it isn't the right return data
   }

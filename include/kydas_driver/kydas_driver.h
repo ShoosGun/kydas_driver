@@ -92,11 +92,11 @@ enum class ControlStatus_WorkingMode{
 std::string displayMessage(const unsigned char* bytes, int n);
 std::string displayFaultCode(short faultCode);
 
-class KydasDriverNode{
+class KydasDriver : public hardware_interface::RobotHW{
   public:
 
-    KydasDriverNode();
-    ~KydasDriverNode();
+    KydasDriver();
+    ~KydasDriver();
 
     int openComport();
 

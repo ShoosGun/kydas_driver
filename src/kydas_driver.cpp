@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "kydas_driver");
     
-  KydasDriverNode node{};
+  KydasDriver node{};
 
   if(node.openComport())
   {
