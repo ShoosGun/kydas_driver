@@ -75,7 +75,7 @@ void KydasDriver::readMessagesOnBuffer(){
   if(receivedMessage){
     if(!isConnected){
       isConnected = true;
-      ROS_INFO("driver connected!");
+      ROS_WARN("driver connected!");
     }
     m_lastReceivedDataTimeFromDriver = ros::Time::now();
   }
@@ -84,8 +84,7 @@ void KydasDriver::readMessagesOnBuffer(){
 void KydasDriver::sendSerial(){
   if(!isConnected){
     return;
-  }
-  
+  }  
   switch (m_currentCommandBeingSent)
   {
     case 0:
@@ -105,7 +104,6 @@ void KydasDriver::update()
   sendSerial(); //Enviar no serial
   readSerial(); //Lendo do serial
   readMessagesOnBuffer(); //Interpretando a mensagem
-
   driverReponseCheck(); //Checar se o driver está conectado
 }
 
@@ -118,4 +116,19 @@ void KydasDriver::driverReponseCheck(){
       ROS_WARN("driver timedout! [%f]", delta);
     }
   }
+}
+
+
+std::string displayMessage(const unsigned char* bytes, int m_bufSize){
+  std::stringstream ss("");
+  
+  ss << "0x" << std::hex;
+  for (int i = 0; i < m_bufSize; i++) 
+      ss << ' ' << +bytes[i];
+      
+  return ss.str();
+}
+
+std::string displayFaultCode(short faultCode){
+  return std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
 }
