@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     ROS_WARN("can't open comport of left driver, the driver might not be connected or the port with the permissions not set");
     return 0;
   }
-  right_driver.cmd
+  //right_driver.cmd
   ros::spin();
 
   return 0;

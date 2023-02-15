@@ -1,6 +1,6 @@
 #include "kydas_driver/kydas_driver.h"
 
-KydasDriver::KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2f): 
+KydasDriver::KydasDriver(int port, int bdrate, float timeout_time): 
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
  isConnected{false},
@@ -100,7 +100,7 @@ void KydasDriver::sendSerial(){
   m_currentCommandBeingSent = (m_currentCommandBeingSent + 1) % 3;
 }
 
-void KydasDriver::loopCallback(const ros::TimerEvent&)
+void KydasDriver::update()
 {  
   sendSerial(); //Enviar no serial
   readSerial(); //Lendo do serial

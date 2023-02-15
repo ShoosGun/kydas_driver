@@ -2,31 +2,28 @@
 #define KYDAS_DRIVER_H
 
 #include "kydas_driver/rs232.h"
-
 #include "ros/ros.h"
 
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
-#include <hardware_interface/robot_hw.h>
-
-#include "kydas_driver/MotorControllerStatus.h"
-#include "kydas_driver/MotorCurrent.h"
-#include "kydas_driver/MotorEletricAngle.h"
-#include "kydas_driver/MotorFaultCode.h"
-#include "kydas_driver/MotorPosition.h"
-#include "kydas_driver/MotorProgramVersion.h"
-#include "kydas_driver/MotorRotorPosition.h"
-#include "kydas_driver/MotorSpeed.h"
-#include "kydas_driver/MotorVoltage.h"
-
-#include "kydas_driver/CmdSpeed.h"
-
-#include "sensor_msgs/Temperature.h"
+//#include <hardware_interface/joint_command_interface.h>
+//#include <hardware_interface/joint_state_interface.h>
+//#include <hardware_interface/robot_hw.h>
+//
+//#include "kydas_driver/MotorControllerStatus.h"
+//#include "kydas_driver/MotorCurrent.h"
+//#include "kydas_driver/MotorEletricAngle.h"
+//#include "kydas_driver/MotorFaultCode.h"
+//#include "kydas_driver/MotorPosition.h"
+//#include "kydas_driver/MotorProgramVersion.h"
+//#include "kydas_driver/MotorRotorPosition.h"
+//#include "kydas_driver/MotorSpeed.h"
+//#include "kydas_driver/MotorVoltage.h"
+//
+//#include "kydas_driver/CmdSpeed.h"
+//
+//#include "sensor_msgs/Temperature.h"
 
 #include <sstream>
 #include <string>
-#include <array>
-#include <queue>
 #include <bitset>
 
 const unsigned char CONTROL_HEADER = 0xE0;
@@ -91,24 +88,14 @@ enum class ControlStatus_WorkingMode{
   RelativePosition
 };
 */
-std::string displayMessage(const unsigned char* bytes, int m_bufSize){
-  std::stringstream ss("");
-  
-  ss << "0x" << std::hex;
-  for (int i = 0; i < m_bufSize; i++) 
-      ss << ' ' << +bytes[i];
-      
-  return ss.str();
-}
+std::string displayMessage(const unsigned char* bytes, int m_bufSize);
 
-std::string displayFaultCode(short faultCode){
-  return std::bitset<8 * sizeof(faultCode)>(faultCode).to_string();
-}
+std::string displayFaultCode(short faultCode);
 
 class KydasDriver{
   public:
 
-    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2f);
+    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f);
     ~KydasDriver();
 
     int openComport();
@@ -160,9 +147,12 @@ class KydasDriver{
 
     void setSpeed(int value, unsigned char controlMode = 1);
     void requestQueryData(unsigned char command);
-    int sendMessage(std::array<unsigned char> msg);
+    int sendMessage(unsigned char * msg, int size);
     //Funcoes para receber dados
     int readQueryData(unsigned char* bytes, int currentPosition);
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
+    //Funcao para verificar se esta conectado
+    void driverReponseCheck();
+    ros::Time m_lastReceivedDataTimeFromDriver;
 };
 #endif
