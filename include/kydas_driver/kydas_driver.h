@@ -153,6 +153,6 @@ class KydasDriver{
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
     //Funcao para verificar se esta conectado
     void driverReponseCheck();
-    ros::Time m_lastReceivedDataTimeFromDriver;
+    ros::WallTime m_lastReceivedDataTimeFromDriver;
 };
 #endif

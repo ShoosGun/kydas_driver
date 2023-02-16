@@ -77,7 +77,7 @@ void KydasDriver::readMessagesOnBuffer(){
       isConnected = true;
       ROS_WARN("driver connected!");
     }
-    m_lastReceivedDataTimeFromDriver = ros::Time::now();
+    m_lastReceivedDataTimeFromDriver = ros::WallTime::now();
   }
 }
 
@@ -109,7 +109,7 @@ void KydasDriver::update()
 
 void KydasDriver::driverReponseCheck(){
   if(isConnected){
-    ros::Duration deltaTime = ros::Time::now() - m_lastReceivedDataTimeFromDriver;
+    ros::WallDuration deltaTime = ros::WallTime::now() - m_lastReceivedDataTimeFromDriver;
     double delta = deltaTime.toSec();
     if(delta > m_timeoutTime){
       isConnected = false;
