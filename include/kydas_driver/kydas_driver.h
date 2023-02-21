@@ -21,6 +21,12 @@
 //#include "kydas_driver/CmdSpeed.h"
 //
 //#include "sensor_msgs/Temperature.h"
+#include "kydas_driver/MotorSpeed.h"
+#include "kydas_driver/MotorVoltage.h"
+
+#include "kydas_driver/CmdSpeed.h"
+
+#include "sensor_msgs/Temperature.h"
 
 #include <sstream>
 #include <string>
