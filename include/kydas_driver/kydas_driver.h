@@ -2,20 +2,25 @@
 #define KYDAS_DRIVER_H
 
 #include "kydas_driver/rs232.h"
-
 #include "ros/ros.h"
 
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
-#include <hardware_interface/robot_hw.h>
-
-#include "kydas_driver/MotorControllerStatus.h"
-#include "kydas_driver/MotorCurrent.h"
-#include "kydas_driver/MotorEletricAngle.h"
-#include "kydas_driver/MotorFaultCode.h"
-#include "kydas_driver/MotorPosition.h"
-#include "kydas_driver/MotorProgramVersion.h"
-#include "kydas_driver/MotorRotorPosition.h"
+//#include <hardware_interface/joint_command_interface.h>
+//#include <hardware_interface/joint_state_interface.h>
+//#include <hardware_interface/robot_hw.h>
+//
+//#include "kydas_driver/MotorControllerStatus.h"
+//#include "kydas_driver/MotorCurrent.h"
+//#include "kydas_driver/MotorEletricAngle.h"
+//#include "kydas_driver/MotorFaultCode.h"
+//#include "kydas_driver/MotorPosition.h"
+//#include "kydas_driver/MotorProgramVersion.h"
+//#include "kydas_driver/MotorRotorPosition.h"
+//#include "kydas_driver/MotorSpeed.h"
+//#include "kydas_driver/MotorVoltage.h"
+//
+//#include "kydas_driver/CmdSpeed.h"
+//
+//#include "sensor_msgs/Temperature.h"
 #include "kydas_driver/MotorSpeed.h"
 #include "kydas_driver/MotorVoltage.h"
 
@@ -25,8 +30,7 @@
 
 #include <sstream>
 #include <string>
-#include <vector>
-#include <queue>
+#include <bitset>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -37,6 +41,7 @@ const char DEBUGGER_NAME_QUERY_DATA_PREVIEW []= "query_data_preview";
 const char DEBUGGER_NAME_MESSAGE_RECEIVED [] = "message_received";
 const char DEBUGGER_NAME_MESSAGE_SENT [] = "message_sent";
 const char DEBUGGER_NAME_COMMAND_SENT [] = "command_sent";
+const char DEBUGGER_NAME_DATA_REQUEST_SENT [] = "data_request_sent";
 
 const int BUFFER_SIZE = 4096;
 
@@ -89,17 +94,42 @@ enum class ControlStatus_WorkingMode{
   RelativePosition
 };
 */
-std::string displayMessage(const unsigned char* bytes, int n);
+std::string displayMessage(const unsigned char* bytes, int m_bufSize);
+
 std::string displayFaultCode(short faultCode);
 
-class KydasDriverNode{
+class KydasDriver{
   public:
 
-    KydasDriverNode();
-    ~KydasDriverNode();
+    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f);
+    ~KydasDriver();
 
     int openComport();
+    void update();
+     //Dados a serem enviados pela serial------
+    bool isConnected; //Indica se o driver foi conectado
+    double speed_cmd;
+    //----------------------------------------
 
+    //Dados do driver ------------------------
+    int current; // Amps
+    int rotorPosition; //
+    int voltage; // Volts
+    int temperature; // °C
+    short faultCode; // vide manual
+
+    int raw_speed; // rad/s
+    double speed;
+    int raw_position;
+    double position; // rad
+    
+    int programVersion;
+
+    int eletricalAngle;
+
+    unsigned char controlMode;
+    unsigned char feedbackWay;
+    unsigned char workingMode;
   private:
     //Dados para comunicacao serial
     int m_cport_nr;
@@ -111,81 +141,24 @@ class KydasDriverNode{
     int m_positionInBuf;
     int m_bufSize;
     unsigned char m_currentHeaderBeingRead;
-    //Para saber qual comando deve ser enviado
-    int m_currentCommandBeingSent;
-    std::queue<std::vector<unsigned char>> m_messagesToSend;
-
-    //Dados a serem enviados pela serial------
-    bool m_isConnected; //Indica se o driver foi conectado
-    //----------------------------------------
-
-    //Dados do driver ------------------------
-    int m_current; // Amps
-    int m_rotorPosition; //
-    int m_voltage; // Volts
-    int m_temperature; // °C
-    short m_faultCode; // vide manual
-
-    int m_speed; // graus/s
-    int m_position;
-    
-    int m_programVersion;
-
-    int m_eletricalAngle;
-
-    unsigned char m_controlMode;
-    unsigned char m_feedbackWay;
-    unsigned char m_workingMode;
-    //----------------------------------------
-    //ROS-------------------------------------
-    ros::NodeHandle m_nh;
-    
-    //Loop de enviar e ler dados
-    ros::Timer m_loopTimer;
-    float m_loop_rate;
-    void loopCallback(const ros::TimerEvent&);
-    //Loop de requesitar dados
-    ros::Timer m_requestDataTimer;
-    float m_request_data_rate;
-    void requestDataLoopCallback(const ros::TimerEvent&);
-    //Loop de verificar se o driver esta respondendo
-    ros::Timer m_responseCheckTimer;
-    ros::Time m_lastReceivedDataTimeFromDriver;
+           
     float m_timeoutTime;
-    float m_response_check_time;
-    void driverReponseCheckCallback(const ros::TimerEvent&);
-
-    //Publicadores
-    ros::Publisher m_controllerStatus_pub;
-    ros::Publisher m_current_pub;
-    ros::Publisher m_eletricAngle_pub;
-    ros::Publisher m_faultCode_pub;
-    ros::Publisher m_position_pub;
-    ros::Publisher m_programVersion_pub;
-    ros::Publisher m_rotorPosition_pub;
-    ros::Publisher m_speed_pub;
-    ros::Publisher m_temp_pub;
-    ros::Publisher m_voltage_pub;
-
-    //Clientes
-    ros::Subscriber m_cmdSpeed_sub;
 
     //Funcoes gerais de ler serial
     void readSerial();
     void readMessagesOnBuffer();
     //Funcoes para enviar comandos
-    void sendMotorCommand();
+    int m_currentCommandBeingSent;
+    void sendSerial();
+
     void setSpeed(int value, unsigned char controlMode = 1);
-    int enableMotor();
-    int disableMotor();
     void requestQueryData(unsigned char command);
-    int sendNextMessage();
+    int sendMessage(unsigned char * msg, int size);
     //Funcoes para receber dados
     int readQueryData(unsigned char* bytes, int currentPosition);
     int readHeartbeatData(unsigned char* bytes, int currentPosition);
-
-    //Callbacks dos subscrito
-    void cmdSpeed(const kydas_driver::CmdSpeed::ConstPtr& cmd);
+    //Funcao para verificar se esta conectado
+    void driverReponseCheck();
+    ros::WallTime m_lastReceivedDataTimeFromDriver;
 };
-
 #endif

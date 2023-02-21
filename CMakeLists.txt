@@ -49,19 +49,19 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  MotorControllerStatus.msg
-  MotorCurrent.msg  
-  MotorEletricAngle.msg
-  MotorFaultCode.msg
-  MotorPosition.msg
-  MotorProgramVersion.msg
-  MotorRotorPosition.msg
-  MotorSpeed.msg
-  MotorVoltage.msg
-  CmdSpeed.msg
-)
+##add_message_files(
+##  FILES
+##  MotorControllerStatus.msg
+##  MotorCurrent.msg  
+##  MotorEletricAngle.msg
+##  MotorFaultCode.msg
+##  MotorPosition.msg
+##  MotorProgramVersion.msg
+##  MotorRotorPosition.msg
+##  MotorSpeed.msg
+##  MotorVoltage.msg
+##  CmdSpeed.msg
+##)
 
 ## Generate services in the 'srv' folder
 #add_service_files(
@@ -76,10 +76,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs sensor_msgs
-)
+##generate_messages(
+##  DEPENDENCIES
+##  std_msgs sensor_msgs
+##)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -111,10 +111,10 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES kydas_driver
+   INCLUDE_DIRS include
+   LIBRARIES ${PROJECT_NAME}
    CATKIN_DEPENDS roscpp rospy std_msgs message_runtime sensor_msgs
-#  DEPENDS system_lib
+## DEPENDS system_lib
 )
 
 ###########
@@ -128,12 +128,16 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(kydas_driver src/kydas_driver.cpp
-                            src/kydas_driver_node.cpp
-                            src/kydas_driver_reading_serial.cpp
-                            src/kydas_driver_sending_to_serial.cpp
-                            src/kydas_driver_ros_callbacks.cpp
-                            src/rs232.c)
-target_link_libraries(kydas_driver ${catkin_LIBRARIES})
+add_library(${PROJECT_NAME} src/kydas_driver.cpp
+                         src/kydas_driver_reading_serial.cpp
+                         src/kydas_driver_sending_to_serial.cpp
+                         src/rs232.c)
 
-add_dependencies(kydas_driver kydas_driver_gencpp)
+##add_executable(kydas_driver src/kydas_driver.cpp
+##                            src/kydas_driver_interface.cpp
+##                            src/kydas_driver_reading_serial.cpp
+##                            src/kydas_driver_sending_to_serial.cpp
+##                            src/rs232.c)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+
+## add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
