@@ -5,6 +5,11 @@ void KydasDriver::setSpeed(int value, unsigned char controlMode){
         ROS_WARN("can't set motor command: driver not connected");
         return;
     }
+
+    if(controlMode != (unsigned char)ControlStatus_ControlMode::RS232){
+        ROS_WARN("driver is on mode %d, make sure the driver mode was correctly set", controlMode);
+    }
+
     char* valueInBytes = static_cast<char*>(static_cast<void*>(&value));
     unsigned char command []={CONTROL_HEADER,0,0,0,0,0,0,0};
     

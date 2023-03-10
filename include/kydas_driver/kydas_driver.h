@@ -59,8 +59,6 @@ enum class Query_Data{
   MAX_AMOUNT
 };
 
-/*Serao apenas necessarios caso queiramos fazer esse codigo fazer a analise do controller status
-
 enum class ControlStatus_ControlMode{
   Analog = 1,
   CAN,
@@ -87,7 +85,7 @@ enum class ControlStatus_WorkingMode{
   AbsolutePosition,
   RelativePosition
 };
-*/
+
 std::string displayMessage(const unsigned char* bytes, int m_bufSize);
 
 std::string displayFaultCode(short faultCode);
