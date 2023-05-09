@@ -9,10 +9,6 @@ project(kydas_driver)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
-  std_msgs
-  message_generation
-  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -113,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime sensor_msgs
+   CATKIN_DEPENDS roscpp
 ## DEPENDS system_lib
 )
 
