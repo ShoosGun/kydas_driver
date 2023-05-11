@@ -120,7 +120,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  #include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -135,5 +135,8 @@ add_library(${PROJECT_NAME} src/kydas_driver.cpp
 ##                            src/kydas_driver_sending_to_serial.cpp
 ##                            src/rs232.c)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 ## add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
