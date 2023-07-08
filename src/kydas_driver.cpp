@@ -1,10 +1,12 @@
 #include "kydas_driver/kydas_driver.h"
 
-KydasDriver::KydasDriver(int port, int bdrate, float timeout_time): 
+KydasDriver::KydasDriver(int port, int bdrate, float timeout_time, int speed_median_filter_size, int position_median_filter_size): 
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
  isConnected{false},
- m_cport_nr{port}, m_bdrate{bdrate}, m_timeoutTime{timeout_time}
+ m_cport_nr{port}, m_bdrate{bdrate}, m_timeoutTime{timeout_time},
+ m_speed_median_filter_size{speed_median_filter_size}, m_position_median_filter_size{position_median_filter_size},
+ m_speed_vector{speed_median_filter_size}, m_position_vector{position_median_filter_size}
 {
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];

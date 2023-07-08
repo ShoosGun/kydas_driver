@@ -25,6 +25,15 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     //2 bytes value
     raw_speed = (short)(bytes[currentPosition + 2] << 8 | bytes[currentPosition + 3]);
     speed = (raw_speed / 0.15f) * M_PI / 180.f;
+
+    //filtering speed    
+    double sum = 0.0;
+    m_speed_vector.pop_back();
+    m_speed_vector.insert(0, speed);
+    for(int i = 0; i < m_speed_median_filter_size; i++)
+      sum += m_speed_vector[i];
+
+    speed_filtered = sum / m_speed_median_filter_size;
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", speed, raw_speed);
   }
@@ -64,6 +73,16 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     //4 bytes value
     raw_position = (int)(bytes[currentPosition + 2] << 24 | bytes[currentPosition + 3] << 16 | bytes[currentPosition + 4] << 8 | bytes[currentPosition + 5]);
     position = (raw_position  / 10000.f )* 2 * M_PI;
+
+    //filtering position
+    double sum = 0.0;
+    m_position_vector.pop_back();
+    m_position_vector.insert(0, position);
+    for(int i = 0; i < m_position_median_filter_size; i++)
+      sum += m_position_vector[i];
+
+    position_filtered = sum / m_position_median_filter_size;
+
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", raw_position, position);
   }
@@ -115,6 +134,26 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   std::string s = displayMessage(&bytes[currentPosition], 13);
   const char* cstr = s.c_str();
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "message = [%s]", cstr);
+
+  //filtering speed    
+  double speed_sum = 0.0;
+  m_speed_vector.pop_back();
+  m_speed_vector.insert(0, speed);
+  for(int i = 0; i < m_speed_median_filter_size; i++)
+    speed_sum += m_speed_vector[i];
+
+  speed_filtered = speed_sum / m_speed_median_filter_size;
+
+  //filtering position   
+  double position_sum = 0.0;
+  m_position_vector.pop_back();
+  m_position_vector.insert(0, position);
+  for(int i = 0; i < m_position_median_filter_size; i++)
+    position_sum += m_position_vector[i];
+
+  position_filtered = position_sum / m_position_median_filter_size;
+
+
 
   return 13;
 }

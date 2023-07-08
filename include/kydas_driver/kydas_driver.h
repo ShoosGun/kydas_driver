@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <bitset>
+#include <vector>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -75,7 +76,7 @@ std::string displayFaultCode(short faultCode);
 class KydasDriver{
   public:
 
-    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f);
+    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f, int speed_median_filter_size = 10, int position_median_filter_size = 10);
     ~KydasDriver();
 
     int openComport();
@@ -94,8 +95,10 @@ class KydasDriver{
 
     int raw_speed; // rad/s
     double speed;
+    double filtered_speed;
     int raw_position;
     double position; // rad
+    double filtered_position;
     
     int programVersion;
 
@@ -117,6 +120,12 @@ class KydasDriver{
     unsigned char m_currentHeaderBeingRead;
            
     float m_timeoutTime;
+
+    //Filtro de mediana https://en.wikipedia.org/wiki/Moving_average 
+    int m_speed_median_filter_size;
+    std::vector<double> m_speed_vector;
+    int m_position_median_filter_size;
+    std::vector<double> m_position_vector;
 
     //Funcoes gerais de ler serial
     void readSerial();
