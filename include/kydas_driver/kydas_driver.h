@@ -4,24 +4,6 @@
 #include "kydas_driver/rs232.h"
 #include "ros/ros.h"
 
-//#include <hardware_interface/joint_command_interface.h>
-//#include <hardware_interface/joint_state_interface.h>
-//#include <hardware_interface/robot_hw.h>
-//
-//#include "kydas_driver/MotorControllerStatus.h"
-//#include "kydas_driver/MotorCurrent.h"
-//#include "kydas_driver/MotorEletricAngle.h"
-//#include "kydas_driver/MotorFaultCode.h"
-//#include "kydas_driver/MotorPosition.h"
-//#include "kydas_driver/MotorProgramVersion.h"
-//#include "kydas_driver/MotorRotorPosition.h"
-//#include "kydas_driver/MotorSpeed.h"
-//#include "kydas_driver/MotorVoltage.h"
-//
-//#include "kydas_driver/CmdSpeed.h"
-//
-//#include "sensor_msgs/Temperature.h"
-
 #include <sstream>
 #include <string>
 #include <bitset>
