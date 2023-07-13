@@ -1,12 +1,15 @@
 #include "kydas_driver/kydas_driver.h"
 
-KydasDriver::KydasDriver(int port, int bdrate, float timeout_time, int speed_median_filter_size, int position_median_filter_size): 
+KydasDriver::KydasDriver(int port, int bdrate, float timeout_time,
+    double max_speed_difference, double max_position_difference,
+    int speed_filter_size, int position_filter_size): 
  m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0}, m_bufferMaxSize{BUFFER_SIZE},
  m_mode{"8N1"},
  isConnected{false},
  m_cport_nr{port}, m_bdrate{bdrate}, m_timeoutTime{timeout_time},
- m_speed_median_filter_size{speed_median_filter_size}, m_position_median_filter_size{position_median_filter_size},
- m_speed_vector{speed_median_filter_size, 0.0}, m_position_vector{position_median_filter_size, 0.0}
+ m_speed_filter_size{speed_filter_size}, m_position_filter_size{position_median_filter_size},
+ m_max_speed_difference{max_speed_difference}, m_max_position_difference{max_position_difference},
+ m_speed_vector(speed_filter_size, 0.0), m_position_vector(position_filter_size, 0.0)
 {
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
@@ -48,6 +51,7 @@ void KydasDriver::readMessagesOnBuffer(){
   bool receivedMessage = false;
 
   while(m_positionInBuf < m_bufSize){
+        double max_speed_difference = 1.0, double max_position_difference = 1.0,
     if(m_buf[m_positionInBuf] == HEARTBEAT_HEADER){
       receivedMessage = true;
 

@@ -1,6 +1,13 @@
 #include "kydas_driver/kydas_driver.h"
+#include <numeric>
+#include <cmath>
+#include <deque>
 
-
+double filterDataByDifference(double newValue, const std::deque<double> deque, double currentValue, double maxDifference){
+  double value_avg = std::accumulate(deque.begin(), deque.end(), 0.0) / deque.size();
+  double value_diff = std::max(std::abs((value_avg - newValue)/newValue), std::abs((newValue - value_avg)/value_avg));
+  return value_diff > maxDifference ? currentValue : newValue;
+}
 int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
   if(bytes[currentPosition] != QUERY_HEADER){
     return 0; //Means we read nothing, because it isn't the right return data
@@ -27,13 +34,9 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     speed = (raw_speed / 0.15f) * M_PI / 180.f;
 
     //filtering speed    
-    double sum = 0.0;
-    m_speed_vector.pop_back();
-    m_speed_vector.insert(0, speed);
-    for(int i = 0; i < m_speed_median_filter_size; i++)
-      sum += m_speed_vector[i];
-
-    speed_filtered = sum / m_speed_median_filter_size;
+    m_speeds.pop_back();
+    m_speeds.push_front(speed);
+    speed_filtered = filterDataByDifference(speed, m_speeds, speed_filtered, m_max_speed_difference);
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", speed, raw_speed);
   }
@@ -75,14 +78,9 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     position = (raw_position  / 10000.f )* 2 * M_PI;
 
     //filtering position
-    double sum = 0.0;
-    m_position_vector.pop_back();
-    m_position_vector.insert(0, position);
-    for(int i = 0; i < m_position_median_filter_size; i++)
-      sum += m_position_vector[i];
-
-    position_filtered = sum / m_position_median_filter_size;
-
+    m_positions.pop_back();
+    m_positions.push_front(position);
+    position_filtered = filterDataByDifference(position, m_positionss, position_filtered, m_max_position_difference);
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", raw_position, position);
   }
@@ -136,24 +134,14 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "message = [%s]", cstr);
 
   //filtering speed    
-  double speed_sum = 0.0;
-  m_speed_vector.pop_back();
-  m_speed_vector.insert(0, speed);
-  for(int i = 0; i < m_speed_median_filter_size; i++)
-    speed_sum += m_speed_vector[i];
-
-  speed_filtered = speed_sum / m_speed_median_filter_size;
+  m_speeds.pop_back();
+  m_speeds.push_front(speed);
+  speed_filtered = filterDataByDifference(speed, m_speeds, speed_filtered, m_max_speed_difference);
 
   //filtering position   
-  double position_sum = 0.0;
-  m_position_vector.pop_back();
-  m_position_vector.insert(0, position);
-  for(int i = 0; i < m_position_median_filter_size; i++)
-    position_sum += m_position_vector[i];
-
-  position_filtered = position_sum / m_position_median_filter_size;
-
-
+  m_positions.pop_back();
+  m_positions.push_front(position);
+  position_filtered = filterDataByDifference(position, m_positionss, position_filtered, m_max_position_difference);
 
   return 13;
 }
