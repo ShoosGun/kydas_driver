@@ -36,7 +36,7 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     //filtering speed    
     m_speeds.pop_back();
     m_speeds.push_front(speed);
-    filtered_speed = filterDataByDifference(speed, m_speeds, speed_filtered, m_max_speed_difference);
+    filtered_speed = filterDataByDifference(speed, m_speeds, filtered_speed, m_max_speed_difference);
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", speed, raw_speed);
   }
@@ -80,7 +80,7 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     //filtering position
     m_positions.pop_back();
     m_positions.push_front(position);
-    filtered_position = filterDataByDifference(position, m_positions, position_filtered, m_max_position_difference);
+    filtered_position = filterDataByDifference(position, m_positions, filtered_position, m_max_position_difference);
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", raw_position, position);
   }
@@ -136,12 +136,12 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   //filtering speed    
   m_speeds.pop_back();
   m_speeds.push_front(speed);
-  filtered_speed = filterDataByDifference(speed, m_speeds, speed_filtered, m_max_speed_difference);
+  filtered_speed = filterDataByDifference(speed, m_speeds, filtered_speed, m_max_speed_difference);
 
   //filtering position   
   m_positions.pop_back();
   m_positions.push_front(position);
-  filtered_position = filterDataByDifference(position, m_positions, position_filtered, m_max_position_difference);
+  filtered_position = filterDataByDifference(position, m_positions, filtered_position, m_max_position_difference);
 
   return 13;
 }
