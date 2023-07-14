@@ -7,9 +7,9 @@ KydasDriver::KydasDriver(int port, int bdrate, float timeout_time,
  m_mode{"8N1"},
  isConnected{false},
  m_cport_nr{port}, m_bdrate{bdrate}, m_timeoutTime{timeout_time},
- m_speed_filter_size{speed_filter_size}, m_position_filter_size{position_median_filter_size},
+ m_speed_filter_size{speed_filter_size}, m_position_filter_size{position_filter_size},
  m_max_speed_difference{max_speed_difference}, m_max_position_difference{max_position_difference},
- m_speed_vector(speed_filter_size, 0.0), m_position_vector(position_filter_size, 0.0)
+ m_speeds(speed_filter_size, 0.0), m_positions(position_filter_size, 0.0)
 {
   //Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
