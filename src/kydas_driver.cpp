@@ -51,7 +51,6 @@ void KydasDriver::readMessagesOnBuffer(){
   bool receivedMessage = false;
 
   while(m_positionInBuf < m_bufSize){
-        double max_speed_difference = 1.0, double max_position_difference = 1.0,
     if(m_buf[m_positionInBuf] == HEARTBEAT_HEADER){
       receivedMessage = true;
 
