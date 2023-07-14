@@ -80,7 +80,7 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     //filtering position
     m_positions.pop_back();
     m_positions.push_front(position);
-    position_filtered = filterDataByDifference(position, m_positionss, position_filtered, m_max_position_difference);
+    position_filtered = filterDataByDifference(position, m_positions, position_filtered, m_max_position_difference);
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", raw_position, position);
   }
@@ -141,7 +141,7 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   //filtering position   
   m_positions.pop_back();
   m_positions.push_front(position);
-  position_filtered = filterDataByDifference(position, m_positionss, position_filtered, m_max_position_difference);
+  position_filtered = filterDataByDifference(position, m_positions, position_filtered, m_max_position_difference);
 
   return 13;
 }
