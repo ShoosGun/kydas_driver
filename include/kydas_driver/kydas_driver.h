@@ -4,27 +4,10 @@
 #include "kydas_driver/rs232.h"
 #include "ros/ros.h"
 
-//#include <hardware_interface/joint_command_interface.h>
-//#include <hardware_interface/joint_state_interface.h>
-//#include <hardware_interface/robot_hw.h>
-//
-//#include "kydas_driver/MotorControllerStatus.h"
-//#include "kydas_driver/MotorCurrent.h"
-//#include "kydas_driver/MotorEletricAngle.h"
-//#include "kydas_driver/MotorFaultCode.h"
-//#include "kydas_driver/MotorPosition.h"
-//#include "kydas_driver/MotorProgramVersion.h"
-//#include "kydas_driver/MotorRotorPosition.h"
-//#include "kydas_driver/MotorSpeed.h"
-//#include "kydas_driver/MotorVoltage.h"
-//
-//#include "kydas_driver/CmdSpeed.h"
-//
-//#include "sensor_msgs/Temperature.h"
-
 #include <sstream>
 #include <string>
 #include <bitset>
+#include <deque>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -93,7 +76,9 @@ std::string displayFaultCode(short faultCode);
 class KydasDriver{
   public:
 
-    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f);
+    KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f,
+        double max_speed_difference = 1.0, double max_position_difference = 1.0,
+        int speed_filter_size = 5, int position_filter_size = 5);
     ~KydasDriver();
 
     int openComport();
@@ -112,8 +97,10 @@ class KydasDriver{
 
     int raw_speed; // rad/s
     double speed;
+    double filtered_speed;
     int raw_position;
     double position; // rad
+    double filtered_position;
     
     int programVersion;
 
@@ -135,6 +122,13 @@ class KydasDriver{
     unsigned char m_currentHeaderBeingRead;
            
     float m_timeoutTime;
+
+    int m_speed_filter_size;
+    double m_max_speed_difference; // porcentage
+    std::deque<double> m_speeds;
+    int m_position_filter_size;
+    double m_max_position_difference; // porcentage
+    std::deque<double> m_positions;
 
     //Funcoes gerais de ler serial
     void readSerial();

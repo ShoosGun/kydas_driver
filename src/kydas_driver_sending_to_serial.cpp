@@ -6,8 +6,8 @@ void KydasDriver::setSpeed(int value, unsigned char controlMode){
         return;
     }
 
-    if(controlMode != (unsigned char)ControlStatus_ControlMode::RS232){
-        ROS_WARN("driver is on mode %d, make sure the driver mode was correctly set", controlMode);
+    if(controlMode == (unsigned char)ControlStatus_ControlMode::CAN){
+        ROS_WARN("driver is on CAN mode, make sure the driver mode was correctly set");
     }
 
     char* valueInBytes = static_cast<char*>(static_cast<void*>(&value));
