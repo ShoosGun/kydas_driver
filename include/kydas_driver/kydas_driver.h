@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 #include <bitset>
-#include <deque>
+#include <vector>
 
 const unsigned char CONTROL_HEADER = 0xE0;
 const unsigned char QUERY_HEADER = 0xED;
@@ -77,7 +77,7 @@ class KydasDriver{
   public:
 
     KydasDriver(int port = 16, int bdrate = 115200, float timeout_time = 2.f,
-        double max_speed_difference = 1.0, double max_position_difference = 1.0,
+        double speed_filter_weight = 1.0, double position_filter_weight = 1.0,
         int speed_filter_size = 5, int position_filter_size = 5);
     ~KydasDriver();
 
@@ -124,11 +124,11 @@ class KydasDriver{
     float m_timeoutTime;
 
     int m_speed_filter_size;
-    double m_max_speed_difference; // porcentage
-    std::deque<double> m_speeds;
+    double m_speed_filter_weight;
+    std::vector<double> m_speeds;
     int m_position_filter_size;
-    double m_max_position_difference; // porcentage
-    std::deque<double> m_positions;
+    double m_position_filter_weight;
+    std::vector<double> m_positions;
 
     //Funcoes gerais de ler serial
     void readSerial();
