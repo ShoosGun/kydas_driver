@@ -1,12 +1,46 @@
 #include "kydas_driver/kydas_driver.h"
 #include <numeric>
 #include <cmath>
-#include <deque>
+#include <vector>
 
-double filterDataByDifference(double newValue, const std::deque<double> deque, double currentValue, double maxDifference){
-  double value_avg = std::accumulate(deque.begin(), deque.end(), 0.0) / deque.size();
-  double value_diff = std::abs(value_avg - newValue);
-  return value_diff > maxDifference ? currentValue : newValue;
+// From https://www.geeksforgeeks.org/finding-median-of-unsorted-array-in-linear-time-using-c-stl/
+double findMedian(std::vector<double> vector, int n){
+	    // If size of the arr[] is even
+	std::vector<double> vec{vector};
+    if (n % 2 == 0) {
+  
+        // Applying nth_element
+        // on n/2th index
+	    std::nth_element(vec.begin(),
+                    vec.begin() + n / 2,
+                    vec.end());
+  
+        // Applying nth_element
+        // on (n-1)/2 th index
+	    std::nth_element(vec.begin(),
+                    vec.begin() + (n - 1) / 2,
+                    vec.end());
+  
+        // Find the average of value at
+        // index N/2 and (N-1)/2
+        return (double)(vec[(n - 1) / 2]
+                        + vec[n / 2])
+               / 2.0;
+    }
+  
+    // If size of the arr[] is odd
+    else {
+  
+        // Applying nth_element
+        // on n/2
+	    std::nth_element(vec.begin(),
+                    vec.begin() + n / 2,
+                    vec.end());
+  
+        // Value at index (N/2)th
+        // is the median
+        return (double)vec[n / 2];
+    }
 }
 
 int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
@@ -34,10 +68,15 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     raw_speed = (short)(bytes[currentPosition + 2] << 8 | bytes[currentPosition + 3]);
     speed = (raw_speed / 0.15f) * M_PI / 180.f;
 
-    //filtering speed    
-    filtered_speed = filterDataByDifference(speed, m_speeds, filtered_speed, m_max_speed_difference);
-    m_speeds.pop_back();
-    m_speeds.push_front(filtered_speed);
+    //filtering speed
+    m_speeds.insert(m_speeds.begin(), speed);
+    if(m_speeds.size() >= m_speed_filter_size){ 
+    	filtered_speed = findMedian(m_speeds, m_speed_filter_size) * m_speed_filter_weight + speed * (1.0 - m_speed_filter_weight);
+      	m_speeds.pop_back();
+    }
+    else{
+    	filtered_speed = NAN;
+    }
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Motor Speed [%f] RPS (%d)", speed, raw_speed);
   }
@@ -78,10 +117,16 @@ int KydasDriver::readQueryData(unsigned char* bytes, int currentPosition){
     raw_position = (int)(bytes[currentPosition + 2] << 24 | bytes[currentPosition + 3] << 16 | bytes[currentPosition + 4] << 8 | bytes[currentPosition + 5]);
     position = (raw_position  / 10000.f )* 2 * M_PI;
 
+ 
     //filtering position
-    filtered_position = filterDataByDifference(position, m_positions, filtered_position, m_max_position_difference);
-    m_positions.pop_back();
-    m_positions.push_front(filtered_position);
+    m_positions.insert(m_positions.begin(), position);
+    if(m_positions.size() >= m_position_filter_size){ 
+    	filtered_position = findMedian(m_positions, m_position_filter_size) * m_position_filter_weight + position * (1.0 - m_position_filter_weight);
+      	m_positions.pop_back();
+    }
+    else{
+    	filtered_position = NAN;
+    }
     
     ROS_DEBUG_NAMED(DEBUGGER_NAME_QUERY_DATA_PREVIEW, "Position [%d] 10000/circle (%f) rad", raw_position, position);
   }
@@ -134,15 +179,25 @@ int KydasDriver::readHeartbeatData(unsigned char* bytes, int currentPosition){
   const char* cstr = s.c_str();
   ROS_DEBUG_NAMED(DEBUGGER_NAME_HEARTBEAT_DATA_PREVIEW, "message = [%s]", cstr);
 
-  //filtering speed
-  filtered_speed = filterDataByDifference(speed, m_speeds, filtered_speed, m_max_speed_difference);    
-  m_speeds.pop_back();
-  m_speeds.push_front(filtered_speed);
+  //filtering speed   
+  m_speeds.insert(m_speeds.begin(), speed);
+  if(m_speeds.size() >= m_speed_filter_size){ 
+  	filtered_speed = findMedian(m_speeds, m_speed_filter_size) * m_speed_filter_weight + speed * (1.0 - m_speed_filter_weight);
+    	m_speeds.pop_back();
+  }
+  else{
+  	filtered_speed = NAN;
+  }
   
   //filtering position   
-  filtered_position = filterDataByDifference(position, m_positions, filtered_position, m_max_position_difference);
-  m_positions.pop_back();
-  m_positions.push_front(filtered_position);
+  m_positions.insert(m_positions.begin(), position);
+  if(m_positions.size() >= m_position_filter_size){ 
+  	filtered_position = findMedian(m_positions, m_position_filter_size) * m_position_filter_weight + position * (1.0 - m_position_filter_weight);
+    	m_positions.pop_back();
+  }
+  else{
+  	filtered_position = NAN;
+  }
   
   return 13;
 }
