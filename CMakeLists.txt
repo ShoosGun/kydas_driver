@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(kydas_driver)
 
 add_library(libserialport STATIC IMPORTED)
-set_target_properties(libserialport PROPERTIES IMPORTED_LOCATION /usr/lib/libserialport.so)
+set_target_properties(libserialport PROPERTIES IMPORTED_LOCATION /usr/lib/aarch64-linux-gnu/libserialport.so)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
