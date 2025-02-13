@@ -1,7 +1,6 @@
 #ifndef KYDAS_DRIVER_H
 #define KYDAS_DRIVER_H
 
-#include "libserialport.h"
 #include "ros/ros.h"
 
 #include <bitset>
@@ -66,7 +65,7 @@ std::string displayFaultCode(short faultCode);
 
 class KydasDriver {
 public:
-  KydasDriver(const char *port, int bdrate = 115200, float timeout_time = 2.f,
+  KydasDriver(std::string port, float timeout_time = 2.f,
               double speed_filter_weight = 1.0,
               double position_filter_weight = 1.0, int speed_filter_size = 5,
               int position_filter_size = 5);
@@ -103,7 +102,8 @@ public:
 
 private:
   // Dados para comunicacao serial
-  struct sp_port *m_cport;
+  std::string m_port_name;
+  int m_cport;
   int m_bdrate;
   // Buffers e outros para receber dados do serial
   unsigned char *m_buf;
