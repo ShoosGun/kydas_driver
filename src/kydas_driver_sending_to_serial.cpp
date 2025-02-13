@@ -49,7 +49,6 @@ int KydasDriver::sendMessage(unsigned char *msg, int size) {
     return 0;
   }
   int result = write(m_cport, msg, size);
-  result |= fflush(m_cport);
   std::string s = displayMessage(msg, size);
   const char *cstr = s.c_str();
   ROS_DEBUG_NAMED(DEBUGGER_NAME_MESSAGE_SENT, "message = [%s]", cstr);
