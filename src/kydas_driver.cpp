@@ -1,11 +1,15 @@
 #include "kydas_driver/kydas_driver.h"
+#include <fcntl.h>
+#include <string.h>
+#include <termios.h>
+#include <unistd.h>
 
-KydasDriver::KydasDriver(const char *port, int bdrate, float timeout_time,
+KydasDriver::KydasDriver(std::string port, float timeout_time,
                          double speed_filter_weight,
                          double position_filter_weight, int speed_filter_size,
                          int position_filter_size)
     : m_positionInBuf{0}, m_bufSize{0}, m_currentHeaderBeingRead{0},
-      m_bufferMaxSize{BUFFER_SIZE}, isConnected{false}, m_bdrate{bdrate},
+      m_bufferMaxSize{BUFFER_SIZE}, isConnected{false}, m_port_name{port},
       m_timeoutTime{timeout_time}, m_speed_filter_size{speed_filter_size},
       m_position_filter_size{position_filter_size},
       m_speed_filter_weight{speed_filter_weight},
@@ -14,31 +18,47 @@ KydasDriver::KydasDriver(const char *port, int bdrate, float timeout_time,
   // Creating buffer
   m_buf = new unsigned char[m_bufferMaxSize];
   // Retrieving FD of the serial port
-  sp_get_port_by_name(port, &m_cport);
 }
 
 KydasDriver::~KydasDriver() {
   delete[] m_buf;
   // Close and Free port
-  sp_close(m_cport);
-  sp_free_port(m_cport);
+  close(m_cport);
 }
 
 int KydasDriver::openComport() {
-  if (sp_open(m_cport, SP_MODE_READ_WRITE) < 0)
+  m_cport = open(m_port_name.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
+  if (m_cport < 0)
     return -1;
-  sp_set_baudrate(m_cport, m_bdrate);
-  // Setting 8N1 mode
-  sp_set_bits(m_cport, 8);
-  sp_set_parity(m_cport, SP_PARITY_NONE);
-  sp_set_stopbits(m_cport, 1);
-  sp_set_flowcontrol(m_cport, SP_FLOWCONTROL_NONE);
+  // See
+  // https://stackoverflow.com/questions/6947413/how-to-open-read-and-write-from-serial-port-in-c
+  // and https://www.man7.org/linux/man-pages/man3/termios.3.html
+  struct termios tty;
+  if (tcgetattr(m_cport, &tty) != 0)
+    return -2;
+  cfsetspeed(&tty, B115200);                  // Set Baudrate
+  tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8; // Set so a char is 8 bits
+  // Disable break processing and remove delays or anything else
+  tty.c_iflag &= ~IGNBRK;
+  tty.c_lflag = 0;     // no local mode
+  tty.c_oflag = 0;     // no delays
+  tty.c_cc[VMIN] = 0;  // no block on read (just returns 0)
+  tty.c_cc[VTIME] = 5; // time out time (in deciseconds) 5 = 0.5s
+
+  tty.c_iflag &= ~(IXON | IXOFF | IXANY); // disable xon/xoff control of io
+  tty.c_cflag |= (CLOCAL | CREAD);   // ignore modem controls and enable read
+  tty.c_cflag &= ~(PARENB | PARODD); // Disables any kind of parity
+  tty.c_cflag &= ~CSTOPB;
+  tty.c_cflag &= ~CRTSCTS; // Disables RTS/CTS flow control
+  if (tcsetattr(m_cport, TCSANOW, &tty) != 0)
+    return -3;
+  return 0;
 }
 
 void KydasDriver::readSerial() {
   if (m_currentHeaderBeingRead ==
       0) { // Nao temos mensagem pendente. ler normalmente
-    m_bufSize = sp_nonblocking_read(m_cport, m_buf, m_bufferMaxSize);
+    m_bufSize = read(m_cport, m_buf, m_bufferMaxSize);
     m_positionInBuf = 0;
   } else { // Temos que ler a possivel parte faltante da mensagem
     // 1 - remover o que ja lido (os i-nesimos primeiros bytes) e movimentar o
@@ -50,8 +70,8 @@ void KydasDriver::readSerial() {
     // 2 - m_buf = ++%%%
     int amount_of_not_read = m_bufSize - m_positionInBuf;
     memcpy(m_buf, &m_buf[m_positionInBuf], amount_of_not_read);
-    int amount_read = sp_nonblocking_read(m_cport, &m_buf[m_positionInBuf + 1],
-                                          m_bufferMaxSize - amount_of_not_read);
+    int amount_read = read(m_cport, &m_buf[m_positionInBuf + 1],
+                           m_bufferMaxSize - amount_of_not_read);
     m_positionInBuf = 0;
     m_bufSize = amount_of_not_read + amount_read;
   }
